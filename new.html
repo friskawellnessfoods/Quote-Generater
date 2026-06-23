@@ -32,12 +32,7 @@ box-shadow:0 2px 8px rgba(0,0,0,0.06);
 z-index:10;
 }
 
-.logo{
-height:44px;
-max-width:200px;
-object-fit:contain;
-display:block;
-}
+.logo{ height:44px; max-width:200px; object-fit:contain; display:block; }
 
 .menuButton{
 position:absolute;
@@ -59,21 +54,11 @@ display:none;
 z-index:1000;
 }
 
-.headerMenu div{
-padding:12px 18px;
-cursor:pointer;
-font-size:15px;
-white-space:nowrap;
-}
-
+.headerMenu div{ padding:12px 18px; cursor:pointer; font-size:15px; white-space:nowrap; }
 .headerMenu div:hover{ background:#f5f5f5; }
 
 /* ---- progress ---- */
-.progressWrap{
-max-width:480px;
-margin:0 auto;
-padding:14px 18px 0;
-}
+.progressWrap{ max-width:480px; margin:0 auto; padding:14px 18px 0; }
 
 .progressTop{
 display:flex;
@@ -85,27 +70,11 @@ margin-bottom:8px;
 font-weight:500;
 }
 
-.progressBar{
-height:6px;
-background:#e4e8f2;
-border-radius:99px;
-overflow:hidden;
-}
-
-.progressFill{
-height:100%;
-width:0%;
-background:#0a1a6e;
-border-radius:99px;
-transition:width .35s ease;
-}
+.progressBar{ height:6px; background:#e4e8f2; border-radius:99px; overflow:hidden; }
+.progressFill{ height:100%; width:0%; background:#0a1a6e; border-radius:99px; transition:width .35s ease; }
 
 /* ---- layout ---- */
-.container{
-max-width:480px;
-margin:auto;
-padding:18px 18px 140px;
-}
+.container{ max-width:480px; margin:auto; padding:18px 18px 150px; }
 
 .step{ display:none; animation:fadeStep .3s ease; }
 .step.active{ display:block; }
@@ -115,19 +84,8 @@ from{ opacity:0; transform:translateY(8px); }
 to{ opacity:1; transform:translateY(0); }
 }
 
-.stepTitle{
-font-size:23px;
-font-weight:700;
-margin:6px 0 4px;
-color:#0a1a6e;
-}
-
-.stepSub{
-font-size:14px;
-color:#667;
-margin-bottom:20px;
-line-height:1.5;
-}
+.stepTitle{ font-size:23px; font-weight:700; margin:6px 0 4px; color:#0a1a6e; }
+.stepSub{ font-size:14px; color:#667; margin-bottom:20px; line-height:1.5; }
 
 /* ---- inputs ---- */
 input[type="text"],
@@ -142,60 +100,12 @@ font-size:16px;
 background:white;
 }
 
-input:focus{
-outline:none;
-border-color:#0a1a6e;
-box-shadow:0 0 0 3px rgba(10,26,110,0.08);
-}
+input:focus{ outline:none; border-color:#0a1a6e; box-shadow:0 0 0 3px rgba(10,26,110,0.08); }
 
-.fieldLabel{
-font-size:13px;
-font-weight:600;
-color:#445;
-margin-top:18px;
-display:block;
-}
-
+.fieldLabel{ font-size:13px; font-weight:600; color:#445; margin-top:18px; display:block; }
 .fieldLabel:first-child{ margin-top:0; }
 
-/* ---- option grids ---- */
-.optionGrid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-}
-
-.optionGrid label,
-.slotLabel{
-display:flex;
-align-items:center;
-gap:10px;
-background:white;
-padding:15px 14px;
-border-radius:12px;
-border:1px solid #eaecf3;
-font-weight:500;
-cursor:pointer;
-transition:all .15s ease;
-margin-top:0;
-}
-
-.slotLabel{ margin-top:12px; }
-
-.optionGrid label:hover,
-.slotLabel:hover{
-border-color:#c3cae0;
-box-shadow:0 2px 6px rgba(0,0,0,0.05);
-}
-
-.optionGrid input,
-.slotLabel input{
-width:18px;
-height:18px;
-accent-color:#0a1a6e;
-cursor:pointer;
-flex:none;
-}
+.dualField{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
 /* ---- goal cards ---- */
 .goalCard{
@@ -212,19 +122,12 @@ transition:all .15s ease;
 }
 
 .goalCard:hover{ border-color:#c3cae0; transform:translateY(-1px); }
-
-.goalCard.active{
-border-color:#0a1a6e;
-box-shadow:0 4px 14px rgba(10,26,110,0.12);
-}
+.goalCard.active{ border-color:#0a1a6e; box-shadow:0 4px 14px rgba(10,26,110,0.12); }
 
 .goalIcon{
 font-size:26px;
-width:46px;
-height:46px;
-display:flex;
-align-items:center;
-justify-content:center;
+width:46px; height:46px;
+display:flex; align-items:center; justify-content:center;
 background:#eef1fb;
 border-radius:12px;
 flex:none;
@@ -246,16 +149,12 @@ box-shadow:0 2px 10px rgba(0,0,0,0.05);
 transition:all .15s ease;
 }
 
-.plan-card.active{
-border-color:#0a1a6e;
-box-shadow:0 6px 18px rgba(10,26,110,0.15);
-}
-
+.plan-card.active{ border-color:#0a1a6e; box-shadow:0 6px 18px rgba(10,26,110,0.15); }
 .plan-card img{ width:100%; display:block; }
 
 .recBadge{
 position:absolute;
-top:12px;
+bottom:12px;
 left:12px;
 background:#0a1a6e;
 color:white;
@@ -264,26 +163,100 @@ font-weight:600;
 padding:6px 12px;
 border-radius:99px;
 z-index:2;
-box-shadow:0 2px 8px rgba(0,0,0,0.2);
+box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
 
-.recNote{
-background:#eef1fb;
-border:1px solid #d6ddf5;
-color:#0a1a6e;
-font-size:13.5px;
-padding:12px 14px;
-border-radius:12px;
-margin-bottom:6px;
-line-height:1.5;
+/* ---- icon tiles (meals / duration / slots) ---- */
+.tileGrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.tile{
+position:relative;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:10px;
+background:white;
+border:2px solid #eaecf3;
+border-radius:16px;
+padding:18px 12px;
+cursor:pointer;
+transition:all .15s ease;
+text-align:center;
+}
+
+.tile:hover{ border-color:#c3cae0; }
+.tile input{ position:absolute; opacity:0; pointer-events:none; }
+
+.tileIcon{
+width:50px; height:50px;
+border-radius:14px;
+display:flex; align-items:center; justify-content:center;
+font-size:25px;
+background:var(--tint);
+transition:all .15s ease;
+}
+
+.tileLabel{ font-size:15px; font-weight:600; color:#222; }
+.tileTime{ font-size:11.5px; color:#889; margin-top:-4px; }
+
+.tile.on{
+border-color:var(--accent);
+background:var(--tint);
+box-shadow:0 4px 14px rgba(0,0,0,0.08);
+}
+
+.tile.on .tileLabel{ color:var(--accent); }
+
+.tileCheck{
+position:absolute;
+top:9px; right:9px;
+width:22px; height:22px;
+border-radius:50%;
+background:var(--accent);
+color:white;
+display:none;
+align-items:center;
+justify-content:center;
+font-size:13px;
+}
+
+.tile.on .tileCheck{ display:flex; }
+
+/* ---- location ---- */
+.locWrap{ position:relative; margin-top:10px; }
+.locWrap input{ padding-right:54px; }
+
+.locBtn{
+position:absolute;
+right:8px;
+top:50%;
+transform:translateY(-50%);
+border:none;
+background:transparent;
+cursor:pointer;
+padding:8px;
+}
+
+#locationSpinner{
+position:absolute;
+right:46px; top:50%;
+transform:translateY(-50%);
+width:16px; height:16px;
+border:2px solid #ddd;
+border-top:2px solid #0a1a6e;
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+display:none;
+}
+
+@keyframes spin{
+0%{transform:translateY(-50%) rotate(0deg);}
+100%{transform:translateY(-50%) rotate(360deg);}
 }
 
 /* ---- nav buttons ---- */
-.navRow{
-display:flex;
-gap:12px;
-margin-top:26px;
-}
+.navRow{ display:flex; gap:12px; margin-top:26px; }
 
 .btn{
 flex:1;
@@ -307,67 +280,54 @@ border:1px solid #dde2ee;
 font-size:20px;
 }
 
-.btnLink{
+.skipLink{
 display:block;
 width:100%;
-margin-top:14px;
+margin-top:16px;
 background:transparent;
 border:none;
-color:#667;
-font-size:14px;
+color:#aab;
+font-size:12px;
 text-decoration:underline;
 cursor:pointer;
-padding:6px;
-}
-
-/* ---- location ---- */
-.locWrap{ position:relative; margin-top:10px; }
-
-.locWrap input{ padding-right:54px; }
-
-.locBtn{
-position:absolute;
-right:8px;
-top:50%;
-transform:translateY(-50%);
-border:none;
-background:transparent;
-cursor:pointer;
-padding:8px;
-}
-
-#locationSpinner{
-position:absolute;
-right:46px;
-top:50%;
-transform:translateY(-50%);
-width:16px;
-height:16px;
-border:2px solid #ddd;
-border-top:2px solid #0a1a6e;
-border-radius:50%;
-animation:spin 0.8s linear infinite;
-display:none;
-}
-
-@keyframes spin{
-0%{transform:translateY(-50%) rotate(0deg);}
-100%{transform:translateY(-50%) rotate(360deg);}
+padding:4px;
 }
 
 /* ---- result ---- */
-#quoteResult{
-margin-top:6px;
-background:white;
-padding:26px 22px;
-border-radius:16px;
+.resultCard{
+background:linear-gradient(135deg,#0a1a6e 0%,#1b2f9e 100%);
+border-radius:20px;
+padding:30px 22px;
 text-align:center;
-box-shadow:0 6px 16px rgba(0,0,0,0.06);
+color:white;
+box-shadow:0 10px 30px rgba(10,26,110,0.25);
+}
+
+.resultTick{
+width:54px; height:54px;
+border-radius:50%;
+background:rgba(255,255,255,0.18);
+display:flex; align-items:center; justify-content:center;
+margin:0 auto 14px;
+font-size:26px;
+}
+
+.resultEyebrow{ font-size:12px; letter-spacing:1.5px; opacity:0.8; font-weight:600; }
+.resultPrice{ font-size:42px; font-weight:800; margin:6px 0 2px; }
+.resultNote{ font-size:13px; opacity:0.85; }
+.resultPlan{
+display:inline-block;
+margin-top:14px;
+background:rgba(255,255,255,0.16);
+padding:7px 16px;
+border-radius:99px;
+font-size:13.5px;
+font-weight:600;
 }
 
 .summaryBox{
 background:white;
-border-radius:14px;
+border-radius:16px;
 padding:16px 18px;
 margin-top:16px;
 box-shadow:0 2px 10px rgba(0,0,0,0.05);
@@ -377,19 +337,19 @@ font-size:14px;
 .summaryBox .row{
 display:flex;
 justify-content:space-between;
-padding:7px 0;
+gap:14px;
+padding:8px 0;
 border-bottom:1px solid #f0f2f7;
 }
 
 .summaryBox .row:last-child{ border-bottom:none; }
-.summaryBox .row span:first-child{ color:#778; }
+.summaryBox .row span:first-child{ color:#778; flex:none; }
 .summaryBox .row span:last-child{ font-weight:600; text-align:right; }
 
 /* ---- popup ---- */
 .toastPopup{
 position:fixed;
-top:50%;
-left:50%;
+top:50%; left:50%;
 transform:translate(-50%,-50%);
 background:white;
 padding:16px 22px;
@@ -407,9 +367,7 @@ text-align:center;
 /* ---- book bar ---- */
 .bookBar{
 position:fixed;
-bottom:0;
-left:0;
-right:0;
+bottom:0; left:0; right:0;
 background:white;
 padding:14px 18px;
 border-top:1px solid #eee;
@@ -419,7 +377,10 @@ z-index:50;
 }
 
 .bookBar button{
+display:block;
+max-width:340px;
 width:100%;
+margin:0 auto;
 padding:16px;
 border-radius:12px;
 border:none;
@@ -437,7 +398,7 @@ cursor:pointer;
 <body>
 
 <div class="header">
-<div class="menuButton" onclick="toggleMenu()">☰</div>
+<div class="menuButton" onclick="toggleMenu()">&#9776;</div>
 <img src="logo.png" class="logo">
 </div>
 
@@ -489,7 +450,7 @@ cursor:pointer;
 </div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(1)">←</button>
+<button class="btn btnGhost" onclick="back(1)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(1)">Continue</button>
 </div>
 </div>
@@ -500,22 +461,22 @@ cursor:pointer;
 <div class="stepSub">We'll use this to recommend the right plan for you.</div>
 
 <div class="goalCard" onclick="selectGoal(this,'weightloss')">
-<div class="goalIcon">🔥</div>
+<div class="goalIcon">&#128293;</div>
 <div class="goalText"><b>Weight Loss</b><span>Lighter meals, controlled carbs</span></div>
 </div>
 
 <div class="goalCard" onclick="selectGoal(this,'musclegain')">
-<div class="goalIcon">💪</div>
+<div class="goalIcon">&#128170;</div>
 <div class="goalText"><b>Muscle Gain</b><span>Higher protein, performance focused</span></div>
 </div>
 
 <div class="goalCard" onclick="selectGoal(this,'wellness')">
-<div class="goalIcon">🌿</div>
+<div class="goalIcon">&#127807;</div>
 <div class="goalText"><b>Overall Wellness</b><span>Balanced everyday nutrition</span></div>
 </div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(2)">←</button>
+<button class="btn btnGhost" onclick="back(2)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(2)">Continue</button>
 </div>
 </div>
@@ -523,22 +484,25 @@ cursor:pointer;
 <!-- STEP 4: BODY (AGE/HEIGHT/WEIGHT) -->
 <div class="step" data-step>
 <div class="stepTitle">A little about you</div>
-<div class="stepSub">Add your height and weight and we'll suggest the best-matched plan. You can skip this and browse all plans.</div>
+<div class="stepSub">This lets us match you to the best plan for your body and goal.</div>
 
-<label class="fieldLabel">Age (optional)</label>
+<label class="fieldLabel">Age</label>
 <input type="number" id="age" placeholder="Years">
 
-<label class="fieldLabel">Height (cm)</label>
-<input type="number" id="height" placeholder="e.g. 170">
+<label class="fieldLabel">Height</label>
+<div class="dualField">
+<input type="number" id="heightFt" placeholder="Feet">
+<input type="number" id="heightIn" placeholder="Inches">
+</div>
 
 <label class="fieldLabel">Weight (kg)</label>
 <input type="number" id="weight" placeholder="e.g. 68">
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(3)">←</button>
+<button class="btn btnGhost" onclick="back(3)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(3)">Continue</button>
 </div>
-<button class="btnLink" onclick="skipBody()">Skip and see all plans</button>
+<button class="skipLink" onclick="skipBody()">Skip</button>
 </div>
 
 <!-- STEP 5: PLANS -->
@@ -546,11 +510,10 @@ cursor:pointer;
 <div class="stepTitle">Choose your plan</div>
 <div class="stepSub">Macros and suitability are explained on each plan banner.</div>
 
-<div class="recNote" id="recNote" style="display:none;"></div>
 <div id="planList"></div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(4)">←</button>
+<button class="btn btnGhost" onclick="back(4)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(4)">Continue</button>
 </div>
 </div>
@@ -558,19 +521,19 @@ cursor:pointer;
 <!-- STEP 6: MEALS -->
 <div class="step" data-step>
 <div class="stepTitle">Select your meals</div>
-<div class="stepSub">Pick the meals you'd like delivered each day.</div>
+<div class="stepSub">Tap to add the meals you'd like delivered each day.</div>
 
-<div class="optionGrid">
-<label><input type="checkbox" id="breakfast"> Breakfast</label>
-<label><input type="checkbox" id="snack"> Snack</label>
-<label><input type="checkbox" id="lunch"> Lunch</label>
-<label><input type="checkbox" id="juice1"> 1 Juice</label>
-<label><input type="checkbox" id="dinner"> Dinner</label>
-<label><input type="checkbox" id="juice2"> 2 Juices</label>
+<div class="tileGrid">
+<label class="tile" style="--accent:#F59E0B;--tint:#FEF3E2;"><input type="checkbox" id="breakfast"><div class="tileIcon">&#127859;</div><div class="tileLabel">Breakfast</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#8B5CF6;--tint:#F1ECFD;"><input type="checkbox" id="snack"><div class="tileIcon">&#127822;</div><div class="tileLabel">Snack</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#10B981;--tint:#E7F7F1;"><input type="checkbox" id="lunch"><div class="tileIcon">&#127857;</div><div class="tileLabel">Lunch</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#EC4899;--tint:#FCE9F3;"><input type="checkbox" id="juice1"><div class="tileIcon">&#129380;</div><div class="tileLabel">1 Juice</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#3B82F6;--tint:#E8F1FE;"><input type="checkbox" id="dinner"><div class="tileIcon">&#127858;</div><div class="tileLabel">Dinner</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#14B8A6;--tint:#E5F6F4;"><input type="checkbox" id="juice2"><div class="tileIcon">&#129380;</div><div class="tileLabel">2 Juices</div><div class="tileCheck">&#10003;</div></label>
 </div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(5)">←</button>
+<button class="btn btnGhost" onclick="back(5)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(5)">Continue</button>
 </div>
 </div>
@@ -580,15 +543,15 @@ cursor:pointer;
 <div class="stepTitle">Choose duration</div>
 <div class="stepSub">How long would you like to subscribe?</div>
 
-<div class="optionGrid">
-<label><input type="radio" name="duration" value="d"> 2 Day Trial</label>
-<label><input type="radio" name="duration" value="w"> 1 Week</label>
-<label><input type="radio" name="duration" value="m"> 26 Days</label>
-<label><input type="radio" name="duration" value="q"> 3 Months</label>
+<div class="tileGrid">
+<label class="tile" style="--accent:#0a1a6e;--tint:#eef1fb;"><input type="radio" name="duration" value="d"><div class="tileIcon">&#9889;</div><div class="tileLabel">2 Day Trial</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#0a1a6e;--tint:#eef1fb;"><input type="radio" name="duration" value="w"><div class="tileIcon">&#128197;</div><div class="tileLabel">1 Week</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#0a1a6e;--tint:#eef1fb;"><input type="radio" name="duration" value="m"><div class="tileIcon">&#128467;</div><div class="tileLabel">26 Days</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#0a1a6e;--tint:#eef1fb;"><input type="radio" name="duration" value="q"><div class="tileIcon">&#127775;</div><div class="tileLabel">3 Months</div><div class="tileCheck">&#10003;</div></label>
 </div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(6)">←</button>
+<button class="btn btnGhost" onclick="back(6)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(6)">Continue</button>
 </div>
 </div>
@@ -598,33 +561,35 @@ cursor:pointer;
 <div class="stepTitle">Delivery slot</div>
 <div class="stepSub">Pick the timings that work best for you.</div>
 
-<label class="slotLabel" id="morningLabel"><input type="checkbox" id="morning"> Morning (7am - 8am)</label>
-<label class="slotLabel"><input type="checkbox" id="afternoon"> Afternoon (11:30am - 1:30pm)</label>
-<label class="slotLabel"><input type="checkbox" id="evening"> Evening (6pm - 8pm)</label>
+<div class="tileGrid">
+<label class="tile" id="morningLabel" style="--accent:#F59E0B;--tint:#FEF3E2;"><input type="checkbox" id="morning"><div class="tileIcon">&#127749;</div><div class="tileLabel">Morning</div><div class="tileTime">7am - 8am</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#F97316;--tint:#FFF0E6;"><input type="checkbox" id="afternoon"><div class="tileIcon">&#9728;</div><div class="tileLabel">Afternoon</div><div class="tileTime">11:30am - 1:30pm</div><div class="tileCheck">&#10003;</div></label>
+<label class="tile" style="--accent:#6366F1;--tint:#ECECFB;"><input type="checkbox" id="evening"><div class="tileIcon">&#127769;</div><div class="tileLabel">Evening</div><div class="tileTime">6pm - 8pm</div><div class="tileCheck">&#10003;</div></label>
+</div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(7)">←</button>
+<button class="btn btnGhost" onclick="back(7)">&#8592;</button>
 <button class="btn btnPrimary" onclick="next(7)">See your price</button>
 </div>
 </div>
 
 <!-- STEP 9: RESULT -->
 <div class="step" data-step>
-<div class="stepTitle">Your quote</div>
-<div class="stepSub">Here's your estimated price including delivery and taxes.</div>
+<div class="stepTitle">You're all set</div>
+<div class="stepSub">Here's your personalised plan and estimated pricing.</div>
 
 <div id="quoteResult"></div>
 <div id="quoteSummary"></div>
 
 <div class="navRow">
-<button class="btn btnGhost" onclick="back(8)">←</button>
+<button class="btn btnGhost" onclick="back(8)">&#8592;</button>
 </div>
 </div>
 
 </div>
 
 <div class="bookBar" id="bookBar">
-<button onclick="bookNow()">Book Now on WhatsApp</button>
+<button onclick="bookNow()">Book Now</button>
 </div>
 
 <div id="toastPopup" class="toastPopup">
@@ -634,7 +599,7 @@ cursor:pointer;
 <script>
 
 /* ============================================================
-   CONFIG — pricing endpoint, WhatsApp numbers, kitchen
+   CONFIG
    ============================================================ */
 const PRICING_URL  = "https://script.google.com/macros/s/AKfycbyvF9_5rPSzW0gsFI1qGSFQFGRug8fYYYPwLe8zga6-0mxhP3G04xwUpocb3xZxhYQ/exec";
 const WHATSAPP_NUMBER = "919390097670";
@@ -642,8 +607,8 @@ const SUPPORT_NUMBER  = "918400964170";
 const KITCHEN = { lat:17.452623115758335, lng:78.41967516576499 };
 
 /* ============================================================
-   PLANS + GOAL → PLAN RECOMMENDATION
-   Edit GOAL_PLANS order and the BMI numbers in recommendPlan()
+   PLANS + GOAL -> PLAN RECOMMENDATION
+   Edit GOAL_PLANS order and the BMI numbers in recommendByBMI()
    to change suggestions. Nothing else needs to change.
    ============================================================ */
 const PLANS = {
@@ -654,7 +619,7 @@ const PLANS = {
   nc:{ name:"No Carb",       img:"no_carb.webp"       }
 };
 
-/* First plan in each list is the default when body step is skipped */
+/* First plan in each list = default when body step is skipped */
 const GOAL_PLANS = {
   weightloss: ["nb","lc","nc"],
   musclegain: ["hp","nc"],
@@ -667,7 +632,7 @@ const GOAL_NAME = {
   wellness:"Overall Wellness"
 };
 
-/* BMI cut-offs live here — change the numbers to retune */
+/* BMI cut-offs live here */
 function recommendByBMI(goal, bmi){
   if(goal === "weightloss"){
     if(bmi < 25) return "nb";
@@ -695,10 +660,7 @@ let bmiValue = 0;
 let distance = 0;
 let pricing = {};
 
-/* ---- pricing fetch (unchanged) ---- */
-fetch(PRICING_URL)
-.then(res=>res.json())
-.then(data=>{ pricing = data; });
+fetch(PRICING_URL).then(res=>res.json()).then(data=>{ pricing = data; });
 
 function getPrice(key){
   if(!pricing[key]) return 0;
@@ -709,14 +671,13 @@ function getPrice(key){
    WIZARD NAVIGATION
    ============================================================ */
 const steps = document.querySelectorAll('[data-step]');
-const TOTAL_INPUT_STEPS = 8;   /* steps 0..7 ; step 8 is the result */
+const TOTAL_INPUT_STEPS = 8;
 let current = 0;
 
 function showStep(idx){
   steps.forEach((s,i)=> s.classList.toggle('active', i===idx));
   current = idx;
 
-  /* progress (hide counter on result step) */
   const fill = document.getElementById('progressFill');
   if(idx < TOTAL_INPUT_STEPS){
     const pct = Math.round(((idx+1)/TOTAL_INPUT_STEPS)*100);
@@ -725,10 +686,9 @@ function showStep(idx){
     document.getElementById('progressPct').innerText = pct + "%";
   }else{
     fill.style.width = "100%";
-    document.getElementById('progressLabel').innerText = "Your quote";
+    document.getElementById('progressLabel').innerText = "Your plan";
     document.getElementById('progressPct').innerText = "";
   }
-
   window.scrollTo({ top:0, behavior:"smooth" });
 }
 
@@ -736,21 +696,19 @@ function back(fromIdx){ showStep(fromIdx - 1); }
 
 function next(fromIdx){
   if(!validateStep(fromIdx)) return;
-  onLeave(fromIdx);
   showStep(fromIdx + 1);
   onEnter(fromIdx + 1);
 }
 
-/* run when a step becomes visible */
-function onEnter(idx){
-  if(idx === 4) renderPlans();      /* plans */
-  if(idx === 7) refreshMorningSlot();/* slot */
-  if(idx === 8) generateQuote();    /* result */
+/* advance automatically after a single-choice pick (Continue still works) */
+function autoNext(stepIdx){
+  setTimeout(function(){ if(current === stepIdx) next(stepIdx); }, 280);
 }
 
-/* run when leaving a step */
-function onLeave(idx){
-  /* nothing special yet — placeholder for future hooks */
+function onEnter(idx){
+  if(idx === 4) renderPlans();
+  if(idx === 7) refreshMorningSlot();
+  if(idx === 8) generateQuote();
 }
 
 /* ============================================================
@@ -758,7 +716,6 @@ function onLeave(idx){
    ============================================================ */
 function validateStep(idx){
 
-  /* 0: name + phone */
   if(idx === 0){
     let name  = document.getElementById("clientName").value.trim();
     let phone = document.getElementById("clientPhone").value.replace(/\D/g,'');
@@ -767,31 +724,23 @@ function validateStep(idx){
     return true;
   }
 
-  /* 1: location (needs a resolved distance) */
   if(idx === 1){
     if(distance <= 0){ showPopup("Please select your delivery location from the suggestions."); return false; }
     return true;
   }
 
-  /* 2: goal */
   if(idx === 2){
     if(!selectedGoal){ showPopup("Please choose a goal."); return false; }
     return true;
   }
 
-  /* 3: body — optional, always valid (skip handled separately) */
-  if(idx === 3){
-    computeRecommendation();
-    return true;
-  }
+  if(idx === 3){ computeRecommendation(); return true; }
 
-  /* 4: plan */
   if(idx === 4){
     if(!selectedPlan){ showPopup("Please choose a plan."); return false; }
     return true;
   }
 
-  /* 5: meals */
   if(idx === 5){
     let any = ["breakfast","lunch","dinner","snack","juice1","juice2"]
       .some(id=>document.getElementById(id).checked);
@@ -799,7 +748,6 @@ function validateStep(idx){
     return true;
   }
 
-  /* 6: duration */
   if(idx === 6){
     if(!document.querySelector('input[name="duration"]:checked')){
       showPopup("Please choose a duration."); return false;
@@ -807,10 +755,7 @@ function validateStep(idx){
     return true;
   }
 
-  /* 7: slot — apply all original slot rules */
-  if(idx === 7){
-    return validateSlots();
-  }
+  if(idx === 7){ return validateSlots(); }
 
   return true;
 }
@@ -823,11 +768,13 @@ function selectGoal(card, goal){
   document.querySelectorAll('.goalCard').forEach(c=>c.classList.remove('active'));
   card.classList.add('active');
   selectedGoal = goal;
+  autoNext(2);
 }
 
 function skipBody(){
   document.getElementById("age").value = "";
-  document.getElementById("height").value = "";
+  document.getElementById("heightFt").value = "";
+  document.getElementById("heightIn").value = "";
   document.getElementById("weight").value = "";
   bmiValue = 0;
   computeRecommendation();
@@ -836,24 +783,25 @@ function skipBody(){
 }
 
 function computeRecommendation(){
-  let h = parseFloat(document.getElementById("height").value);
-  let w = parseFloat(document.getElementById("weight").value);
+  let ft = parseFloat(document.getElementById("heightFt").value) || 0;
+  let inch = parseFloat(document.getElementById("heightIn").value) || 0;
+  let w = parseFloat(document.getElementById("weight").value) || 0;
 
-  if(h > 0 && w > 0){
-    let m = h / 100;
+  let totalInches = ft*12 + inch;
+  if(totalInches > 0 && w > 0){
+    let m = totalInches * 0.0254;
     bmiValue = w / (m*m);
     recommendedPlan = recommendByBMI(selectedGoal, bmiValue);
   }else{
     bmiValue = 0;
-    recommendedPlan = GOAL_PLANS[selectedGoal][0];   /* goal default */
+    recommendedPlan = GOAL_PLANS[selectedGoal][0];
   }
 }
 
-/* render plan cards: recommended first, then the rest (all plans shown) */
+/* render plan cards: recommended first, all plans shown */
 function renderPlans(){
   if(!recommendedPlan) computeRecommendation();
 
-  /* order: recommended → rest of goal list → any remaining plans */
   let order = [recommendedPlan];
   GOAL_PLANS[selectedGoal].forEach(p=>{ if(!order.includes(p)) order.push(p); });
   Object.keys(PLANS).forEach(p=>{ if(!order.includes(p)) order.push(p); });
@@ -863,27 +811,13 @@ function renderPlans(){
     let isRec = (p === recommendedPlan);
     html +=
       '<div class="plan-card'+(isRec?' active':'')+'" onclick="selectPlan(this,\''+p+'\')">' +
-        (isRec ? '<div class="recBadge">★ Recommended</div>' : '') +
+        (isRec ? '<div class="recBadge">&#9733; Recommended</div>' : '') +
         '<img src="'+PLANS[p].img+'" alt="'+PLANS[p].name+'">' +
       '</div>';
   });
   document.getElementById("planList").innerHTML = html;
 
-  /* recommended is pre-selected */
-  selectedPlan = recommendedPlan;
-
-  /* recommendation note */
-  let note = document.getElementById("recNote");
-  if(bmiValue > 0){
-    note.style.display = "block";
-    note.innerHTML = "Based on your goal (<b>"+GOAL_NAME[selectedGoal]+"</b>) and a BMI of <b>"+
-                     bmiValue.toFixed(1)+"</b>, we recommend the <b>"+PLANS[recommendedPlan].name+
-                     "</b> plan. You can pick any plan below.";
-  }else{
-    note.style.display = "block";
-    note.innerHTML = "Based on your goal (<b>"+GOAL_NAME[selectedGoal]+"</b>), we recommend the <b>"+
-                     PLANS[recommendedPlan].name+"</b> plan. You can pick any plan below.";
-  }
+  selectedPlan = recommendedPlan;   /* pre-selected, no auto-advance on entry */
 }
 
 function selectPlan(card, plan){
@@ -891,10 +825,40 @@ function selectPlan(card, plan){
   document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("active"));
   card.classList.add("active");
   selectedPlan = plan;
+  autoNext(4);
 }
 
 /* ============================================================
-   LOCATION (autocomplete + distance) — unchanged logic
+   TILE INTERACTIONS (meals / duration / slots)
+   ============================================================ */
+function bindTiles(){
+  document.querySelectorAll('.tile input').forEach(inp=>{
+    inp.addEventListener('change', function(){
+      if(this.type === 'radio'){
+        document.querySelectorAll('input[name="'+this.name+'"]').forEach(r=>{
+          r.closest('.tile').classList.toggle('on', r.checked);
+        });
+      }else{
+        this.closest('.tile').classList.toggle('on', this.checked);
+      }
+    });
+  });
+
+  /* duration auto-advances */
+  document.querySelectorAll('input[name="duration"]').forEach(r=>{
+    r.addEventListener('change', function(){ invalidateQuote(); autoNext(6); });
+  });
+
+  /* meals + slots just clear any shown quote */
+  ["breakfast","lunch","dinner","snack","juice1","juice2","morning","afternoon","evening"]
+  .forEach(id=>{
+    let el = document.getElementById(id);
+    if(el) el.addEventListener("change", invalidateQuote);
+  });
+}
+
+/* ============================================================
+   LOCATION (autocomplete + distance) - unchanged logic
    ============================================================ */
 let autocomplete;
 
@@ -956,14 +920,13 @@ function useCurrentLocation(){
   });
 }
 
-/* clear distance if location text is edited manually */
 document.getElementById("location").addEventListener("input", function(){
   distance = 0;
   invalidateQuote();
 });
 
 /* ============================================================
-   SLOT RULES + MORNING VISIBILITY — unchanged logic
+   SLOT RULES + MORNING VISIBILITY - unchanged logic
    ============================================================ */
 function refreshMorningSlot(){
   let breakfast = document.getElementById("breakfast").checked;
@@ -972,6 +935,7 @@ function refreshMorningSlot(){
   if(!breakfast){
     morningLabel.style.display = "none";
     morning.checked = false;
+    morningLabel.classList.remove("on");
   }else{
     morningLabel.style.display = "flex";
   }
@@ -990,13 +954,11 @@ function validateSlots(){
   let slotCount = (morning?1:0)+(afternoon?1:0)+(evening?1:0);
   if(slotCount === 0){ showPopup("Please choose at least one delivery slot."); return false; }
 
-  /* morning-only cannot carry lunch/dinner/snack */
   if(morning && !afternoon && !evening && (lunch || dinner || snack)){
     showPopup("Lunch, Dinner or Snack require Afternoon or Evening delivery.");
     return false;
   }
 
-  /* single meal must map to a single slot */
   let mealCount = (breakfast?1:0)+(lunch?1:0)+(dinner?1:0);
   if(mealCount === 1 && slotCount > 1){
     showPopup("Only one meal selected. Please choose only one delivery slot.");
@@ -1006,20 +968,11 @@ function validateSlots(){
   return true;
 }
 
-/* keep quote fresh if inputs change after a price was shown */
-["breakfast","lunch","dinner","snack","juice1","juice2","morning","afternoon","evening"]
-.forEach(id=>{
-  let el = document.getElementById(id);
-  if(el) el.addEventListener("change", invalidateQuote);
-});
-document.querySelectorAll('input[name="duration"]').forEach(el=>{
-  el.addEventListener("change", invalidateQuote);
-});
 document.getElementById("clientName").addEventListener("input", invalidateQuote);
 document.getElementById("clientPhone").addEventListener("input", invalidateQuote);
 
 /* ============================================================
-   QUOTE — pricing math unchanged; lead save now adds new fields
+   QUOTE - pricing math unchanged; lead save adds new fields
    ============================================================ */
 function invalidateQuote(){
   document.getElementById("quoteResult").innerHTML = "";
@@ -1082,7 +1035,6 @@ function generateQuote(){
   let gst = foodTotal * (getPrice("gst")/100);
   let total = foodTotal + gst + deliveryTotal;
 
-  /* labels for save + summary */
   let meals = [];
   if(breakfast) meals.push("Breakfast");
   if(lunch) meals.push("Lunch");
@@ -1098,10 +1050,14 @@ function generateQuote(){
 
   let planText = PLANS[selectedPlan].name;
 
+  let ft = document.getElementById("heightFt").value;
+  let inch = document.getElementById("heightIn").value;
+  let heightText = (ft || inch) ? ((ft||0) + "ft " + (inch||0) + "in") : "";
+
   /* ---- SAVE LEAD TO SHEET ----
-     New fields added: age, goal, height, weight, bmi, recommended.
-     NOTE: the Apps Script doPost must be updated to write these
-     columns (age right after phone). See handover notes. */
+     New fields: age, goal, height, weight, bmi, recommended.
+     NOTE: update Apps Script doPost to write these columns
+     (age right after phone). */
   fetch(PRICING_URL,{
     method:"POST",
     body:JSON.stringify({
@@ -1110,7 +1066,7 @@ function generateQuote(){
       age: age,
       plan: planText,
       goal: GOAL_NAME[selectedGoal],
-      height: document.getElementById("height").value,
+      height: heightText,
       weight: document.getElementById("weight").value,
       bmi: bmiValue ? bmiValue.toFixed(1) : "",
       recommended: PLANS[recommendedPlan] ? PLANS[recommendedPlan].name : "",
@@ -1123,10 +1079,14 @@ function generateQuote(){
     })
   });
 
-  /* ---- render price + summary ---- */
   document.getElementById("quoteResult").innerHTML =
-    "<div style='font-size:34px;font-weight:700;color:#0a1a6e'>₹"+total.toFixed(0)+"</div>" +
-    "<div style='font-size:14px;margin-top:6px;color:#555'>Including delivery charges &amp; taxes</div>";
+    "<div class='resultCard'>" +
+      "<div class='resultTick'>&#10003;</div>" +
+      "<div class='resultEyebrow'>ESTIMATED TOTAL</div>" +
+      "<div class='resultPrice'>&#8377;"+total.toFixed(0)+"</div>" +
+      "<div class='resultNote'>Including delivery charges &amp; taxes</div>" +
+      "<div class='resultPlan'>"+planText+" &middot; "+durationText+"</div>" +
+    "</div>";
 
   document.getElementById("quoteSummary").innerHTML =
     "<div class='summaryBox'>" +
@@ -1146,7 +1106,7 @@ function row(label, value){
 }
 
 /* ============================================================
-   BOOK NOW + MENU + SUPPORT — unchanged
+   BOOK NOW + MENU + SUPPORT - unchanged
    ============================================================ */
 function bookNow(){
   let durationElement = document.querySelector('input[name="duration"]:checked');
@@ -1196,6 +1156,7 @@ function showPopup(message){
 }
 
 /* init */
+bindTiles();
 showStep(0);
 
 </script>
