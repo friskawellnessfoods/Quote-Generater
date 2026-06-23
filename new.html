@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Friska Wellness Quote</title>
+
+<style>
+
+*{ box-sizing:border-box; }
+
+body{
+font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+background:#f4f6fb;
+margin:0;
+padding:0;
+color:#111;
+}
+
+.header{
+position:sticky;
+top:0;
+background:white;
+padding:14px 0;
+display:flex;
+justify-content:center;
+align-items:center;
+border-bottom:1px solid #eee;
+box-shadow:0 2px 8px rgba(0,0,0,0.06);
+z-index:10;
+}
+
+.logo{
+height:44px;
+max-width:200px;
+object-fit:contain;
+display:block;
+}
+
+.menuButton{
+position:absolute;
+right:18px;
+font-size:24px;
+cursor:pointer;
+color:#0a1a6e;
+}
+
+.headerMenu{
+position:fixed;
+top:64px;
+right:18px;
+background:white;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.15);
+overflow:hidden;
+display:none;
+z-index:1000;
+}
+
+.headerMenu div{
+padding:12px 18px;
+cursor:pointer;
+font-size:15px;
+white-space:nowrap;
+}
+
+.headerMenu div:hover{ background:#f5f5f5; }
+
+/* ---- progress ---- */
+.progressWrap{
+max-width:480px;
+margin:0 auto;
+padding:14px 18px 0;
+}
+
+.progressTop{
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:13px;
+color:#667;
+margin-bottom:8px;
+font-weight:500;
+}
+
+.progressBar{
+height:6px;
+background:#e4e8f2;
+border-radius:99px;
+overflow:hidden;
+}
+
+.progressFill{
+height:100%;
+width:0%;
+background:#0a1a6e;
+border-radius:99px;
+transition:width .35s ease;
+}
+
+/* ---- layout ---- */
+.container{
+max-width:480px;
+margin:auto;
+padding:18px 18px 140px;
+}
+
+.step{ display:none; animation:fadeStep .3s ease; }
+.step.active{ display:block; }
+
+@keyframes fadeStep{
+from{ opacity:0; transform:translateY(8px); }
+to{ opacity:1; transform:translateY(0); }
+}
+
+.stepTitle{
+font-size:23px;
+font-weight:700;
+margin:6px 0 4px;
+color:#0a1a6e;
+}
+
+.stepSub{
+font-size:14px;
+color:#667;
+margin-bottom:20px;
+line-height:1.5;
+}
+
+/* ---- inputs ---- */
+input[type="text"],
+input[type="tel"],
+input[type="number"]{
+width:100%;
+padding:15px 14px;
+margin-top:10px;
+border-radius:12px;
+border:1px solid #dde2ee;
+font-size:16px;
+background:white;
+}
+
+input:focus{
+outline:none;
+border-color:#0a1a6e;
+box-shadow:0 0 0 3px rgba(10,26,110,0.08);
+}
+
+.fieldLabel{
+font-size:13px;
+font-weight:600;
+color:#445;
+margin-top:18px;
+display:block;
+}
+
+.fieldLabel:first-child{ margin-top:0; }
+
+/* ---- option grids ---- */
+.optionGrid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+.optionGrid label,
+.slotLabel{
+display:flex;
+align-items:center;
+gap:10px;
+background:white;
+padding:15px 14px;
+border-radius:12px;
+border:1px solid #eaecf3;
+font-weight:500;
+cursor:pointer;
+transition:all .15s ease;
+margin-top:0;
+}
+
+.slotLabel{ margin-top:12px; }
+
+.optionGrid label:hover,
+.slotLabel:hover{
+border-color:#c3cae0;
+box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.optionGrid input,
+.slotLabel input{
+width:18px;
+height:18px;
+accent-color:#0a1a6e;
+cursor:pointer;
+flex:none;
+}
+
+/* ---- goal cards ---- */
+.goalCard{
+display:flex;
+align-items:center;
+gap:14px;
+background:white;
+border:2px solid #eaecf3;
+border-radius:14px;
+padding:18px 16px;
+margin-top:14px;
+cursor:pointer;
+transition:all .15s ease;
+}
+
+.goalCard:hover{ border-color:#c3cae0; transform:translateY(-1px); }
+
+.goalCard.active{
+border-color:#0a1a6e;
+box-shadow:0 4px 14px rgba(10,26,110,0.12);
+}
+
+.goalIcon{
+font-size:26px;
+width:46px;
+height:46px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#eef1fb;
+border-radius:12px;
+flex:none;
+}
+
+.goalText b{ font-size:16px; }
+.goalText span{ display:block; font-size:13px; color:#778; margin-top:2px; }
+
+/* ---- plan cards ---- */
+.plan-card{
+position:relative;
+border-radius:16px;
+overflow:hidden;
+cursor:pointer;
+border:2px solid transparent;
+margin-top:16px;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+transition:all .15s ease;
+}
+
+.plan-card.active{
+border-color:#0a1a6e;
+box-shadow:0 6px 18px rgba(10,26,110,0.15);
+}
+
+.plan-card img{ width:100%; display:block; }
+
+.recBadge{
+position:absolute;
+top:12px;
+left:12px;
+background:#0a1a6e;
+color:white;
+font-size:12px;
+font-weight:600;
+padding:6px 12px;
+border-radius:99px;
+z-index:2;
+box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.recNote{
+background:#eef1fb;
+border:1px solid #d6ddf5;
+color:#0a1a6e;
+font-size:13.5px;
+padding:12px 14px;
+border-radius:12px;
+margin-bottom:6px;
+line-height:1.5;
+}
+
+/* ---- nav buttons ---- */
+.navRow{
+display:flex;
+gap:12px;
+margin-top:26px;
+}
+
+.btn{
+flex:1;
+padding:15px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+}
+
+.btnPrimary{ background:#0a1a6e; color:white; }
+.btnPrimary:active{ background:#08155a; }
+
+.btnGhost{
+flex:none;
+width:54px;
+background:white;
+color:#0a1a6e;
+border:1px solid #dde2ee;
+font-size:20px;
+}
+
+.btnLink{
+display:block;
+width:100%;
+margin-top:14px;
+background:transparent;
+border:none;
+color:#667;
+font-size:14px;
+text-decoration:underline;
+cursor:pointer;
+padding:6px;
+}
+
+/* ---- location ---- */
+.locWrap{ position:relative; margin-top:10px; }
+
+.locWrap input{ padding-right:54px; }
+
+.locBtn{
+position:absolute;
+right:8px;
+top:50%;
+transform:translateY(-50%);
+border:none;
+background:transparent;
+cursor:pointer;
+padding:8px;
+}
+
+#locationSpinner{
+position:absolute;
+right:46px;
+top:50%;
+transform:translateY(-50%);
+width:16px;
+height:16px;
+border:2px solid #ddd;
+border-top:2px solid #0a1a6e;
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+display:none;
+}
+
+@keyframes spin{
+0%{transform:translateY(-50%) rotate(0deg);}
+100%{transform:translateY(-50%) rotate(360deg);}
+}
+
+/* ---- result ---- */
+#quoteResult{
+margin-top:6px;
+background:white;
+padding:26px 22px;
+border-radius:16px;
+text-align:center;
+box-shadow:0 6px 16px rgba(0,0,0,0.06);
+}
+
+.summaryBox{
+background:white;
+border-radius:14px;
+padding:16px 18px;
+margin-top:16px;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+font-size:14px;
+}
+
+.summaryBox .row{
+display:flex;
+justify-content:space-between;
+padding:7px 0;
+border-bottom:1px solid #f0f2f7;
+}
+
+.summaryBox .row:last-child{ border-bottom:none; }
+.summaryBox .row span:first-child{ color:#778; }
+.summaryBox .row span:last-child{ font-weight:600; text-align:right; }
+
+/* ---- popup ---- */
+.toastPopup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:16px 22px;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.15);
+font-size:15px;
+font-weight:500;
+color:#333;
+z-index:9999;
+display:none;
+max-width:280px;
+text-align:center;
+}
+
+/* ---- book bar ---- */
+.bookBar{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+padding:14px 18px;
+border-top:1px solid #eee;
+box-shadow:0 -3px 10px rgba(0,0,0,0.08);
+display:none;
+z-index:50;
+}
+
+.bookBar button{
+width:100%;
+padding:16px;
+border-radius:12px;
+border:none;
+background:#25D366;
+color:white;
+font-size:17px;
+font-weight:600;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<div class="menuButton" onclick="toggleMenu()">☰</div>
+<img src="logo.png" class="logo">
+</div>
+
+<div class="headerMenu" id="headerMenu">
+<div onclick="openWeeklyMenu()">Weekly Menu</div>
+<div onclick="contactSupport()">Customer Service</div>
+</div>
+
+<div class="progressWrap">
+<div class="progressTop">
+<span id="progressLabel">Step 1 of 8</span>
+<span id="progressPct">12%</span>
+</div>
+<div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
+</div>
+
+<div class="container">
+
+<!-- STEP 1: NAME + PHONE -->
+<div class="step active" data-step>
+<div class="stepTitle">Welcome to Friska</div>
+<div class="stepSub">Let's start with a few details so we can prepare your plan.</div>
+
+<label class="fieldLabel">Your name</label>
+<input type="text" id="clientName" placeholder="Enter your name">
+
+<label class="fieldLabel">Phone number</label>
+<input type="tel" id="clientPhone" placeholder="10-digit mobile number" maxlength="10">
+
+<div class="navRow">
+<button class="btn btnPrimary" onclick="next(0)">Continue</button>
+</div>
+</div>
+
+<!-- STEP 2: LOCATION -->
+<div class="step" data-step>
+<div class="stepTitle">Delivery location</div>
+<div class="stepSub">Tell us where we'll be delivering. This helps us check timing and delivery charges.</div>
+
+<div class="locWrap">
+<input id="location" type="text" placeholder="Enter delivery location">
+<div id="locationSpinner"></div>
+<button type="button" class="locBtn" onclick="useCurrentLocation()">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+<circle cx="12" cy="12" r="8" stroke="#0a1a6e" stroke-width="2"/>
+<circle cx="12" cy="12" r="2.5" fill="#0a1a6e"/>
+</svg>
+</button>
+</div>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(1)">←</button>
+<button class="btn btnPrimary" onclick="next(1)">Continue</button>
+</div>
+</div>
+
+<!-- STEP 3: GOAL -->
+<div class="step" data-step>
+<div class="stepTitle">What's your goal?</div>
+<div class="stepSub">We'll use this to recommend the right plan for you.</div>
+
+<div class="goalCard" onclick="selectGoal(this,'weightloss')">
+<div class="goalIcon">🔥</div>
+<div class="goalText"><b>Weight Loss</b><span>Lighter meals, controlled carbs</span></div>
+</div>
+
+<div class="goalCard" onclick="selectGoal(this,'musclegain')">
+<div class="goalIcon">💪</div>
+<div class="goalText"><b>Muscle Gain</b><span>Higher protein, performance focused</span></div>
+</div>
+
+<div class="goalCard" onclick="selectGoal(this,'wellness')">
+<div class="goalIcon">🌿</div>
+<div class="goalText"><b>Overall Wellness</b><span>Balanced everyday nutrition</span></div>
+</div>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(2)">←</button>
+<button class="btn btnPrimary" onclick="next(2)">Continue</button>
+</div>
+</div>
+
+<!-- STEP 4: BODY (AGE/HEIGHT/WEIGHT) -->
+<div class="step" data-step>
+<div class="stepTitle">A little about you</div>
+<div class="stepSub">Add your height and weight and we'll suggest the best-matched plan. You can skip this and browse all plans.</div>
+
+<label class="fieldLabel">Age (optional)</label>
+<input type="number" id="age" placeholder="Years">
+
+<label class="fieldLabel">Height (cm)</label>
+<input type="number" id="height" placeholder="e.g. 170">
+
+<label class="fieldLabel">Weight (kg)</label>
+<input type="number" id="weight" placeholder="e.g. 68">
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(3)">←</button>
+<button class="btn btnPrimary" onclick="next(3)">Continue</button>
+</div>
+<button class="btnLink" onclick="skipBody()">Skip and see all plans</button>
+</div>
+
+<!-- STEP 5: PLANS -->
+<div class="step" data-step>
+<div class="stepTitle">Choose your plan</div>
+<div class="stepSub">Macros and suitability are explained on each plan banner.</div>
+
+<div class="recNote" id="recNote" style="display:none;"></div>
+<div id="planList"></div>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(4)">←</button>
+<button class="btn btnPrimary" onclick="next(4)">Continue</button>
+</div>
+</div>
+
+<!-- STEP 6: MEALS -->
+<div class="step" data-step>
+<div class="stepTitle">Select your meals</div>
+<div class="stepSub">Pick the meals you'd like delivered each day.</div>
+
+<div class="optionGrid">
+<label><input type="checkbox" id="breakfast"> Breakfast</label>
+<label><input type="checkbox" id="snack"> Snack</label>
+<label><input type="checkbox" id="lunch"> Lunch</label>
+<label><input type="checkbox" id="juice1"> 1 Juice</label>
+<label><input type="checkbox" id="dinner"> Dinner</label>
+<label><input type="checkbox" id="juice2"> 2 Juices</label>
+</div>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(5)">←</button>
+<button class="btn btnPrimary" onclick="next(5)">Continue</button>
+</div>
+</div>
+
+<!-- STEP 7: DURATION -->
+<div class="step" data-step>
+<div class="stepTitle">Choose duration</div>
+<div class="stepSub">How long would you like to subscribe?</div>
+
+<div class="optionGrid">
+<label><input type="radio" name="duration" value="d"> 2 Day Trial</label>
+<label><input type="radio" name="duration" value="w"> 1 Week</label>
+<label><input type="radio" name="duration" value="m"> 26 Days</label>
+<label><input type="radio" name="duration" value="q"> 3 Months</label>
+</div>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(6)">←</button>
+<button class="btn btnPrimary" onclick="next(6)">Continue</button>
+</div>
+</div>
+
+<!-- STEP 8: SLOT -->
+<div class="step" data-step>
+<div class="stepTitle">Delivery slot</div>
+<div class="stepSub">Pick the timings that work best for you.</div>
+
+<label class="slotLabel" id="morningLabel"><input type="checkbox" id="morning"> Morning (7am - 8am)</label>
+<label class="slotLabel"><input type="checkbox" id="afternoon"> Afternoon (11:30am - 1:30pm)</label>
+<label class="slotLabel"><input type="checkbox" id="evening"> Evening (6pm - 8pm)</label>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(7)">←</button>
+<button class="btn btnPrimary" onclick="next(7)">See your price</button>
+</div>
+</div>
+
+<!-- STEP 9: RESULT -->
+<div class="step" data-step>
+<div class="stepTitle">Your quote</div>
+<div class="stepSub">Here's your estimated price including delivery and taxes.</div>
+
+<div id="quoteResult"></div>
+<div id="quoteSummary"></div>
+
+<div class="navRow">
+<button class="btn btnGhost" onclick="back(8)">←</button>
+</div>
+</div>
+
+</div>
+
+<div class="bookBar" id="bookBar">
+<button onclick="bookNow()">Book Now on WhatsApp</button>
+</div>
+
+<div id="toastPopup" class="toastPopup">
+<span id="toastMessage"></span>
+</div>
+
+<script>
+
+/* ============================================================
+   CONFIG — pricing endpoint, WhatsApp numbers, kitchen
+   ============================================================ */
+const PRICING_URL  = "https://script.google.com/macros/s/AKfycbyvF9_5rPSzW0gsFI1qGSFQFGRug8fYYYPwLe8zga6-0mxhP3G04xwUpocb3xZxhYQ/exec";
+const WHATSAPP_NUMBER = "919390097670";
+const SUPPORT_NUMBER  = "918400964170";
+const KITCHEN = { lat:17.452623115758335, lng:78.41967516576499 };
+
+/* ============================================================
+   PLANS + GOAL → PLAN RECOMMENDATION
+   Edit GOAL_PLANS order and the BMI numbers in recommendPlan()
+   to change suggestions. Nothing else needs to change.
+   ============================================================ */
+const PLANS = {
+  nb:{ name:"Nutri Balance", img:"nutri_balance.webp" },
+  hp:{ name:"High Protein",  img:"high_protein.webp"  },
+  lc:{ name:"Low Carb",      img:"low_carb.webp"      },
+  hc:{ name:"High Carb",     img:"high_carb.webp"     },
+  nc:{ name:"No Carb",       img:"no_carb.webp"       }
+};
+
+/* First plan in each list is the default when body step is skipped */
+const GOAL_PLANS = {
+  weightloss: ["nb","lc","nc"],
+  musclegain: ["hp","nc"],
+  wellness:   ["hc","nb"]
+};
+
+const GOAL_NAME = {
+  weightloss:"Weight Loss",
+  musclegain:"Muscle Gain",
+  wellness:"Overall Wellness"
+};
+
+/* BMI cut-offs live here — change the numbers to retune */
+function recommendByBMI(goal, bmi){
+  if(goal === "weightloss"){
+    if(bmi < 25) return "nb";
+    if(bmi < 30) return "lc";
+    return "nc";
+  }
+  if(goal === "musclegain"){
+    if(bmi < 25) return "hp";
+    return "nc";
+  }
+  if(goal === "wellness"){
+    if(bmi < 18.5) return "hc";
+    return "nb";
+  }
+  return GOAL_PLANS[goal][0];
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let selectedPlan = "";
+let selectedGoal = "";
+let recommendedPlan = "";
+let bmiValue = 0;
+let distance = 0;
+let pricing = {};
+
+/* ---- pricing fetch (unchanged) ---- */
+fetch(PRICING_URL)
+.then(res=>res.json())
+.then(data=>{ pricing = data; });
+
+function getPrice(key){
+  if(!pricing[key]) return 0;
+  return Number(pricing[key]);
+}
+
+/* ============================================================
+   WIZARD NAVIGATION
+   ============================================================ */
+const steps = document.querySelectorAll('[data-step]');
+const TOTAL_INPUT_STEPS = 8;   /* steps 0..7 ; step 8 is the result */
+let current = 0;
+
+function showStep(idx){
+  steps.forEach((s,i)=> s.classList.toggle('active', i===idx));
+  current = idx;
+
+  /* progress (hide counter on result step) */
+  const fill = document.getElementById('progressFill');
+  if(idx < TOTAL_INPUT_STEPS){
+    const pct = Math.round(((idx+1)/TOTAL_INPUT_STEPS)*100);
+    fill.style.width = pct + "%";
+    document.getElementById('progressLabel').innerText = "Step " + (idx+1) + " of " + TOTAL_INPUT_STEPS;
+    document.getElementById('progressPct').innerText = pct + "%";
+  }else{
+    fill.style.width = "100%";
+    document.getElementById('progressLabel').innerText = "Your quote";
+    document.getElementById('progressPct').innerText = "";
+  }
+
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+function back(fromIdx){ showStep(fromIdx - 1); }
+
+function next(fromIdx){
+  if(!validateStep(fromIdx)) return;
+  onLeave(fromIdx);
+  showStep(fromIdx + 1);
+  onEnter(fromIdx + 1);
+}
+
+/* run when a step becomes visible */
+function onEnter(idx){
+  if(idx === 4) renderPlans();      /* plans */
+  if(idx === 7) refreshMorningSlot();/* slot */
+  if(idx === 8) generateQuote();    /* result */
+}
+
+/* run when leaving a step */
+function onLeave(idx){
+  /* nothing special yet — placeholder for future hooks */
+}
+
+/* ============================================================
+   STEP VALIDATION
+   ============================================================ */
+function validateStep(idx){
+
+  /* 0: name + phone */
+  if(idx === 0){
+    let name  = document.getElementById("clientName").value.trim();
+    let phone = document.getElementById("clientPhone").value.replace(/\D/g,'');
+    if(!name){ showPopup("Please enter your name."); return false; }
+    if(phone.length !== 10){ showPopup("Please enter a valid 10-digit phone number."); return false; }
+    return true;
+  }
+
+  /* 1: location (needs a resolved distance) */
+  if(idx === 1){
+    if(distance <= 0){ showPopup("Please select your delivery location from the suggestions."); return false; }
+    return true;
+  }
+
+  /* 2: goal */
+  if(idx === 2){
+    if(!selectedGoal){ showPopup("Please choose a goal."); return false; }
+    return true;
+  }
+
+  /* 3: body — optional, always valid (skip handled separately) */
+  if(idx === 3){
+    computeRecommendation();
+    return true;
+  }
+
+  /* 4: plan */
+  if(idx === 4){
+    if(!selectedPlan){ showPopup("Please choose a plan."); return false; }
+    return true;
+  }
+
+  /* 5: meals */
+  if(idx === 5){
+    let any = ["breakfast","lunch","dinner","snack","juice1","juice2"]
+      .some(id=>document.getElementById(id).checked);
+    if(!any){ showPopup("Please select at least one meal."); return false; }
+    return true;
+  }
+
+  /* 6: duration */
+  if(idx === 6){
+    if(!document.querySelector('input[name="duration"]:checked')){
+      showPopup("Please choose a duration."); return false;
+    }
+    return true;
+  }
+
+  /* 7: slot — apply all original slot rules */
+  if(idx === 7){
+    return validateSlots();
+  }
+
+  return true;
+}
+
+/* ============================================================
+   GOAL + BODY + RECOMMENDATION
+   ============================================================ */
+function selectGoal(card, goal){
+  invalidateQuote();
+  document.querySelectorAll('.goalCard').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  selectedGoal = goal;
+}
+
+function skipBody(){
+  document.getElementById("age").value = "";
+  document.getElementById("height").value = "";
+  document.getElementById("weight").value = "";
+  bmiValue = 0;
+  computeRecommendation();
+  showStep(4);
+  onEnter(4);
+}
+
+function computeRecommendation(){
+  let h = parseFloat(document.getElementById("height").value);
+  let w = parseFloat(document.getElementById("weight").value);
+
+  if(h > 0 && w > 0){
+    let m = h / 100;
+    bmiValue = w / (m*m);
+    recommendedPlan = recommendByBMI(selectedGoal, bmiValue);
+  }else{
+    bmiValue = 0;
+    recommendedPlan = GOAL_PLANS[selectedGoal][0];   /* goal default */
+  }
+}
+
+/* render plan cards: recommended first, then the rest (all plans shown) */
+function renderPlans(){
+  if(!recommendedPlan) computeRecommendation();
+
+  /* order: recommended → rest of goal list → any remaining plans */
+  let order = [recommendedPlan];
+  GOAL_PLANS[selectedGoal].forEach(p=>{ if(!order.includes(p)) order.push(p); });
+  Object.keys(PLANS).forEach(p=>{ if(!order.includes(p)) order.push(p); });
+
+  let html = "";
+  order.forEach(p=>{
+    let isRec = (p === recommendedPlan);
+    html +=
+      '<div class="plan-card'+(isRec?' active':'')+'" onclick="selectPlan(this,\''+p+'\')">' +
+        (isRec ? '<div class="recBadge">★ Recommended</div>' : '') +
+        '<img src="'+PLANS[p].img+'" alt="'+PLANS[p].name+'">' +
+      '</div>';
+  });
+  document.getElementById("planList").innerHTML = html;
+
+  /* recommended is pre-selected */
+  selectedPlan = recommendedPlan;
+
+  /* recommendation note */
+  let note = document.getElementById("recNote");
+  if(bmiValue > 0){
+    note.style.display = "block";
+    note.innerHTML = "Based on your goal (<b>"+GOAL_NAME[selectedGoal]+"</b>) and a BMI of <b>"+
+                     bmiValue.toFixed(1)+"</b>, we recommend the <b>"+PLANS[recommendedPlan].name+
+                     "</b> plan. You can pick any plan below.";
+  }else{
+    note.style.display = "block";
+    note.innerHTML = "Based on your goal (<b>"+GOAL_NAME[selectedGoal]+"</b>), we recommend the <b>"+
+                     PLANS[recommendedPlan].name+"</b> plan. You can pick any plan below.";
+  }
+}
+
+function selectPlan(card, plan){
+  invalidateQuote();
+  document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("active"));
+  card.classList.add("active");
+  selectedPlan = plan;
+}
+
+/* ============================================================
+   LOCATION (autocomplete + distance) — unchanged logic
+   ============================================================ */
+let autocomplete;
+
+function initAutocomplete(){
+  const input = document.getElementById("location");
+  autocomplete = new google.maps.places.Autocomplete(input,{
+    componentRestrictions:{ country:"in" },
+    locationBias:{ center:{lat:17.385044,lng:78.486671}, radius:50000 }
+  });
+  autocomplete.addListener("place_changed", function(){
+    const place = autocomplete.getPlace();
+    if(place && place.geometry) calculateDistance(place.geometry.location);
+  });
+}
+
+function calculateDistance(destination){
+  const service = new google.maps.DistanceMatrixService();
+  service.getDistanceMatrix({
+    origins:[KITCHEN],
+    destinations:[destination],
+    travelMode:"DRIVING"
+  }, function(response,status){
+    if(status !== "OK"){ return; }
+    const element = response.rows[0].elements[0];
+    distance = element.distance.value / 1000;
+    if(distance > 20){
+      showPopup("Delivery location is more than 20 km away. This may affect delivery timing and meal plan availability.");
+    }
+  });
+}
+
+function useCurrentLocation(){
+  const spinner = document.getElementById("locationSpinner");
+  spinner.style.display = "block";
+
+  if(!navigator.geolocation){
+    spinner.style.display = "none";
+    alert("Geolocation not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(function(position){
+    let lat = position.coords.latitude;
+    let lng = position.coords.longitude;
+    const latlng = {lat:lat, lng:lng};
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: latlng }, function(results, status){
+      spinner.style.display = "none";
+      if(status === "OK" && results[0]){
+        document.getElementById("location").value = results[0].formatted_address;
+        calculateDistance(latlng);
+      }else{
+        alert("Unable to determine address from location.");
+      }
+    });
+  }, function(){
+    spinner.style.display = "none";
+    alert("Unable to fetch current location. Please allow location permission.");
+  });
+}
+
+/* clear distance if location text is edited manually */
+document.getElementById("location").addEventListener("input", function(){
+  distance = 0;
+  invalidateQuote();
+});
+
+/* ============================================================
+   SLOT RULES + MORNING VISIBILITY — unchanged logic
+   ============================================================ */
+function refreshMorningSlot(){
+  let breakfast = document.getElementById("breakfast").checked;
+  let morningLabel = document.getElementById("morningLabel");
+  let morning = document.getElementById("morning");
+  if(!breakfast){
+    morningLabel.style.display = "none";
+    morning.checked = false;
+  }else{
+    morningLabel.style.display = "flex";
+  }
+}
+
+function validateSlots(){
+  let morning   = document.getElementById("morning").checked;
+  let afternoon = document.getElementById("afternoon").checked;
+  let evening   = document.getElementById("evening").checked;
+
+  let breakfast = document.getElementById("breakfast").checked;
+  let lunch  = document.getElementById("lunch").checked;
+  let dinner = document.getElementById("dinner").checked;
+  let snack  = document.getElementById("snack").checked;
+
+  let slotCount = (morning?1:0)+(afternoon?1:0)+(evening?1:0);
+  if(slotCount === 0){ showPopup("Please choose at least one delivery slot."); return false; }
+
+  /* morning-only cannot carry lunch/dinner/snack */
+  if(morning && !afternoon && !evening && (lunch || dinner || snack)){
+    showPopup("Lunch, Dinner or Snack require Afternoon or Evening delivery.");
+    return false;
+  }
+
+  /* single meal must map to a single slot */
+  let mealCount = (breakfast?1:0)+(lunch?1:0)+(dinner?1:0);
+  if(mealCount === 1 && slotCount > 1){
+    showPopup("Only one meal selected. Please choose only one delivery slot.");
+    return false;
+  }
+
+  return true;
+}
+
+/* keep quote fresh if inputs change after a price was shown */
+["breakfast","lunch","dinner","snack","juice1","juice2","morning","afternoon","evening"]
+.forEach(id=>{
+  let el = document.getElementById(id);
+  if(el) el.addEventListener("change", invalidateQuote);
+});
+document.querySelectorAll('input[name="duration"]').forEach(el=>{
+  el.addEventListener("change", invalidateQuote);
+});
+document.getElementById("clientName").addEventListener("input", invalidateQuote);
+document.getElementById("clientPhone").addEventListener("input", invalidateQuote);
+
+/* ============================================================
+   QUOTE — pricing math unchanged; lead save now adds new fields
+   ============================================================ */
+function invalidateQuote(){
+  document.getElementById("quoteResult").innerHTML = "";
+  document.getElementById("quoteSummary").innerHTML = "";
+  document.getElementById("bookBar").style.display = "none";
+}
+
+function generateQuote(){
+  let name  = document.getElementById("clientName").value.trim();
+  let phone = document.getElementById("clientPhone").value.replace(/\D/g,'');
+  let age   = document.getElementById("age").value.trim();
+
+  let durationElement = document.querySelector('input[name="duration"]:checked');
+  let duration = durationElement.value;
+  let durationText = { d:"2 Day Trial", w:"1 Week", m:"26 Days", q:"3 Months" }[duration];
+
+  let prefix = selectedPlan + "_";
+  let dur = duration + "_";
+
+  let breakfast = document.getElementById("breakfast").checked;
+  let lunch  = document.getElementById("lunch").checked;
+  let dinner = document.getElementById("dinner").checked;
+  let snack  = document.getElementById("snack").checked;
+  let juice1 = document.getElementById("juice1").checked;
+  let juice2 = document.getElementById("juice2").checked;
+
+  let morning   = document.getElementById("morning").checked;
+  let afternoon = document.getElementById("afternoon").checked;
+  let evening   = document.getElementById("evening").checked;
+
+  let foodPerDay = 0;
+  if(breakfast) foodPerDay += getPrice(prefix+dur+"breakfast");
+
+  let mealCount = 0;
+  if(lunch) mealCount++;
+  if(dinner) mealCount++;
+  if(mealCount == 1) foodPerDay += getPrice(prefix+dur+"lunch");
+  if(mealCount == 2) foodPerDay += getPrice(prefix+dur+"combo")*2;
+
+  if(snack)  foodPerDay += getPrice(prefix+dur+"snack");
+  if(juice1) foodPerDay += getPrice(prefix+dur+"juice1");
+  if(juice2) foodPerDay += getPrice(prefix+dur+"juice2")*2;
+
+  let days = 2;
+  if(duration=="w") days = 6;
+  if(duration=="m") days = 26;
+  if(duration=="q") days = 78;
+
+  let foodTotal = foodPerDay * days;
+
+  let trips = 0;
+  if(morning) trips++;
+  if(afternoon) trips++;
+  if(evening) trips++;
+
+  let roundedDistance = Math.round(distance);
+  let deliveryPerTrip = roundedDistance * getPrice("delivery");
+  let deliveryTotal = deliveryPerTrip * trips * days;
+
+  let gst = foodTotal * (getPrice("gst")/100);
+  let total = foodTotal + gst + deliveryTotal;
+
+  /* labels for save + summary */
+  let meals = [];
+  if(breakfast) meals.push("Breakfast");
+  if(lunch) meals.push("Lunch");
+  if(dinner) meals.push("Dinner");
+  if(snack) meals.push("Snack");
+  if(juice1) meals.push("1 Juice");
+  if(juice2) meals.push("2 Juices");
+
+  let slots = [];
+  if(morning) slots.push("Morning");
+  if(afternoon) slots.push("Afternoon");
+  if(evening) slots.push("Evening");
+
+  let planText = PLANS[selectedPlan].name;
+
+  /* ---- SAVE LEAD TO SHEET ----
+     New fields added: age, goal, height, weight, bmi, recommended.
+     NOTE: the Apps Script doPost must be updated to write these
+     columns (age right after phone). See handover notes. */
+  fetch(PRICING_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      name: name,
+      phone: phone,
+      age: age,
+      plan: planText,
+      goal: GOAL_NAME[selectedGoal],
+      height: document.getElementById("height").value,
+      weight: document.getElementById("weight").value,
+      bmi: bmiValue ? bmiValue.toFixed(1) : "",
+      recommended: PLANS[recommendedPlan] ? PLANS[recommendedPlan].name : "",
+      meals: meals.join(", "),
+      duration: durationText,
+      slots: slots.join(", "),
+      location: document.getElementById("location").value,
+      distance: roundedDistance,
+      price: total
+    })
+  });
+
+  /* ---- render price + summary ---- */
+  document.getElementById("quoteResult").innerHTML =
+    "<div style='font-size:34px;font-weight:700;color:#0a1a6e'>₹"+total.toFixed(0)+"</div>" +
+    "<div style='font-size:14px;margin-top:6px;color:#555'>Including delivery charges &amp; taxes</div>";
+
+  document.getElementById("quoteSummary").innerHTML =
+    "<div class='summaryBox'>" +
+      row("Plan", planText) +
+      row("Goal", GOAL_NAME[selectedGoal]) +
+      row("Meals", meals.join(", ")) +
+      row("Duration", durationText) +
+      row("Slots", slots.join(", ")) +
+      row("Delivery", roundedDistance + " km") +
+    "</div>";
+
+  document.getElementById("bookBar").style.display = "block";
+}
+
+function row(label, value){
+  return "<div class='row'><span>"+label+"</span><span>"+(value||"-")+"</span></div>";
+}
+
+/* ============================================================
+   BOOK NOW + MENU + SUPPORT — unchanged
+   ============================================================ */
+function bookNow(){
+  let durationElement = document.querySelector('input[name="duration"]:checked');
+  let duration = durationElement.value;
+  let durationText = { d:"2 Day Trial", w:"1 Week", m:"26 Days", q:"3 Months" }[duration];
+  let planText = PLANS[selectedPlan].name;
+  let clientName = document.getElementById("clientName").value.trim();
+
+  let message =
+    "Hello Friska Wellness,%0A%0A" +
+    "My name is " + clientName + ".%0A" +
+    "I have opted for the " + planText + " plan for " + durationText + ".%0A%0A" +
+    "I would like to proceed with the subscription.%0A" +
+    "Please share the weekly menu and payment details.%0A%0A" +
+    "Thank you.";
+
+  window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + message, "_blank");
+}
+
+function toggleMenu(){
+  let menu = document.getElementById("headerMenu");
+  menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+
+document.addEventListener("click", function(event){
+  let menu = document.getElementById("headerMenu");
+  let button = document.querySelector(".menuButton");
+  if(!menu.contains(event.target) && !button.contains(event.target)){
+    menu.style.display = "none";
+  }
+});
+
+function openWeeklyMenu(){
+  window.open("https://friskawellnessfoods.github.io/weekly-choice/menu.html","_blank");
+}
+
+function contactSupport(){
+  let message = "Hello Friska Wellness,%0A%0AI would like to know more about the meal plans.";
+  window.open("https://wa.me/" + SUPPORT_NUMBER + "?text=" + message, "_blank");
+}
+
+function showPopup(message){
+  let popup = document.getElementById("toastPopup");
+  document.getElementById("toastMessage").innerText = message;
+  popup.style.display = "block";
+  setTimeout(()=>{ popup.style.display = "none"; }, 2500);
+}
+
+/* init */
+showStep(0);
+
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqVJgCfV0C1KBF0u1Jc02p_RHE7K7g1V8&libraries=places&callback=initAutocomplete" async defer></script>
+
+</body>
+</html>
