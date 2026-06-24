@@ -457,11 +457,17 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <div class="bookBar" id="bookBar"><button onclick="bookNow()">Book Now</button></div>
 <div id="toastPopup" class="toastPopup"><span id="toastMessage"></span></div>
 
+<!-- shared backend config: defines API_URL -->
+<script src="config.js"></script>
+
 <script>
 
 /* ============================================================ CONFIG ============================================================ */
-const PRICING_URL  = "https://script.google.com/macros/s/AKfycbykNZUFrHNtoPzRljkFvd3cRRWGp12MIWKP6gHZw8-iZGS4CY34WV1qHd7T0wbhRoQ/exec";
-const WHATSAPP_NUMBER = "918400964170";
+/* Apps Script /exec URL comes from config.js (API_URL).
+   Change the URL only in config.js — never here. */
+const PRICING_URL = (typeof API_URL !== "undefined" && API_URL) ? API_URL : "";
+if(!PRICING_URL){ console.warn("API_URL not found — make sure config.js is present and loaded."); }
+const WHATSAPP_NUMBER = "919390097670";
 const SUPPORT_NUMBER  = "918400964170";
 const KITCHEN = { lat:17.452623115758335, lng:78.41967516576499 };
 
