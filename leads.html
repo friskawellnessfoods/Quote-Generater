@@ -126,17 +126,33 @@ function waDigits(raw){
   if(d.length === 10) d = "91" + d;   /* India default */
   return d;
 }
-/* Open WhatsApp Business on Android (package com.whatsapp.w4b),
+
+/* ---- Follow-up message draft (edit the wording here) ---- */
+function draftMessage(name){
+  let greet = name ? ("Hello " + name + ",") : "Hello,";
+  return greet + "\n\n" +
+    "This is Friska Wellness Foods. We noticed you recently explored our meal plans " +
+    "but didn't complete your booking.\n\n" +
+    "We'd love to know if there was anything holding you back, or any questions we can " +
+    "help with \u2014 we're happy to help you get started. \uD83D\uDE0A";
+}
+
+/* dig -> client name, filled in during render so openWA can personalise */
+let NAME_BY_DIG = {};
+
+/* Open WhatsApp Business on Android (package com.whatsapp.w4b) with the draft pre-filled,
    falling back to normal WhatsApp (wa.me) on iOS / desktop / if not installed */
 function openWA(dig, ev){
   if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+  let enc = encodeURIComponent(draftMessage(NAME_BY_DIG[dig] || ""));
+  let waUrl = "https://wa.me/" + dig + "?text=" + enc;
   if(/android/i.test(navigator.userAgent)){
     window.location.href =
-      "intent://send?phone=" + dig +
+      "intent://send?phone=" + dig + "&text=" + enc +
       "#Intent;scheme=whatsapp;package=com.whatsapp.w4b;" +
-      "S.browser_fallback_url=https%3A%2F%2Fwa.me%2F" + dig + ";end";
+      "S.browser_fallback_url=" + encodeURIComponent(waUrl) + ";end";
   } else {
-    window.open("https://wa.me/" + dig, "_blank");
+    window.open(waUrl, "_blank");
   }
   return false;
 }
@@ -218,8 +234,11 @@ function render(){
   }
 
   let html = "<div class='list'>";
+  NAME_BY_DIG = {};
   list.forEach(g=>{
     let n = g.subs.length;
+    let dig = waDigits(g.phone);
+    NAME_BY_DIG[dig] = g.name || "";
     let subsHtml = g.subs.map(subCard).join("");
     html +=
       "<div class='group'>" +
@@ -231,7 +250,7 @@ function render(){
             "</div>" +
           "</div>" +
           "<div class='gRight'>" +
-            "<a class='waIcon' href='https://wa.me/"+waDigits(g.phone)+"' rel='noopener' onclick='return openWA(\""+waDigits(g.phone)+"\", event)'>"+WA_SVG+"</a>" +
+            "<a class='waIcon' href='https://wa.me/"+dig+"?text="+encodeURIComponent(draftMessage(g.name||''))+"' rel='noopener' onclick='return openWA(\""+dig+"\", event)'>"+WA_SVG+"</a>" +
             "<span class='chev'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg></span>" +
           "</div>" +
         "</div>" +
