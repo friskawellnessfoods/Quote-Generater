@@ -32,10 +32,12 @@ h1,h2,h3,.leadName,.statNum,.btn{ font-family:"Poppins",system-ui,sans-serif; }
 
 /* toolbar */
 .toolbar{ display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
-.search{ flex:1; min-width:170px; position:relative; }
-.search input{ width:100%; padding:13px 14px 13px 42px; border-radius:13px; border:1.5px solid #e2e7f1; font-size:15px; background:white; }
-.search input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(16,185,129,0.12); }
-.search svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#aab1c9; }
+.dateRange{ display:flex; align-items:center; gap:6px; flex:1; min-width:0; }
+.dateBox{ padding:12px 10px; border-radius:12px; border:1.5px solid #e2e7f1; font-size:14px; background:white; color:var(--ink); font-weight:600; min-width:0; flex:1; }
+.dateBox:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(16,185,129,0.12); }
+.rangeDash{ color:var(--muted); flex:none; }
+.clearDates{ flex:none; width:38px; height:42px; border-radius:12px; border:1.5px solid #e2e7f1; background:white; color:var(--muted); font-size:22px; line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center; }
+.clearDates.show{ display:flex; }
 .sortSel{ padding:13px 14px; border-radius:13px; border:1.5px solid #e2e7f1; font-size:14px; background:white; color:var(--ink); font-weight:600; cursor:pointer; }
 .refreshBtn{ padding:13px 16px; border-radius:13px; border:none; background:var(--navy); color:white; font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:7px; }
 .refreshBtn svg{ width:16px; height:16px; }
@@ -98,11 +100,12 @@ h1,h2,h3,.leadName,.statNum,.btn{ font-family:"Poppins",system-ui,sans-serif; }
 </div>
 
 <div class="toolbar">
-<div class="search">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-<input id="searchInput" type="text" placeholder="Search name or phone">
+<div class="dateRange">
+<input class="dateBox" id="fromDate" type="date" title="From date">
+<span class="rangeDash">&ndash;</span>
+<input class="dateBox" id="toDate" type="date" title="To date">
+<button class="clearDates" id="clearDates" title="Clear dates" onclick="clearDates()">&times;</button>
 </div>
-<input class="sortSel" id="dateInput" type="date" title="Filter by date">
 <select class="sortSel" id="sortSel">
 <option value="latest">Latest</option>
 <option value="oldest">Oldest</option>
@@ -210,9 +213,12 @@ function groupLeads(rows){
 }
 
 function render(){
-  let q = document.getElementById("searchInput").value.trim().toLowerCase();
   let sort = document.getElementById("sortSel").value;
-  let dateVal = document.getElementById("dateInput").value;   /* "" or yyyy-mm-dd */
+  let fromVal = document.getElementById("fromDate").value;   /* "" or yyyy-mm-dd */
+  let toVal   = document.getElementById("toDate").value;
+
+  /* show the clear cross only when a date is set */
+  document.getElementById("clearDates").classList.toggle("show", !!(fromVal || toVal));
 
   /* --- top stats: always all-time overview --- */
   document.getElementById("statClients").innerText = groupLeads(ALL).length;
@@ -226,14 +232,21 @@ function render(){
   });
   document.getElementById("statToday").innerText = Object.keys(todaySet).length;
 
-  /* --- display set: optional date filter, then group --- */
-  let rows = dateVal ? ALL.filter(l=>sameDate(l.date, dateVal)) : ALL;
-  let groups = groupLeads(rows);
+  /* --- date range: 1 date = that single day; 2 dates = inclusive range --- */
+  let fromDay = fromVal ? ymdInt(fromVal) : null;
+  let toDay   = toVal   ? ymdInt(toVal)   : null;
+  let lo = null, hi = null;
+  if(fromDay && toDay){ lo = Math.min(fromDay,toDay); hi = Math.max(fromDay,toDay); }
+  else if(fromDay){ lo = hi = fromDay; }
+  else if(toDay){ lo = hi = toDay; }
+  let hasFilter = (lo !== null);
 
-  let list = groups.filter(g=>{
-    if(!q) return true;
-    return ((g.name||"")+" "+(g.phone||"")).toLowerCase().indexOf(q) > -1;
-  });
+  let rows = hasFilter ? ALL.filter(l=>{
+    let dn = dateInt(l.date);
+    return dn !== null && dn >= lo && dn <= hi;
+  }) : ALL;
+
+  let list = groupLeads(rows);
 
   list.sort((a,b)=>{
     if(sort==="latest")   return new Date(b.latest) - new Date(a.latest);
@@ -246,7 +259,7 @@ function render(){
   });
 
   if(!list.length){
-    let msg = dateVal ? "No leads on this date." : (q ? "Try a different search." : "New leads will appear here.");
+    let msg = hasFilter ? "No leads in this date range." : "New leads will appear here.";
     document.getElementById("content").innerHTML =
       "<div class='state'><div class='big'>No leads found</div>" + msg + "</div>";
     return;
@@ -315,18 +328,21 @@ function distCmp(a,b,asc){
   return asc ? (a-b) : (b-a);
 }
 
-/* match a lead date against a yyyy-mm-dd value from the date input */
-function sameDate(v, ymd){
-  let d = new Date(v); if(isNaN(d.getTime())) return false;
-  let p = ymd.split("-");
-  return d.getFullYear()===+p[0] && (d.getMonth()+1)===+p[1] && d.getDate()===+p[2];
+/* day-as-integer helpers (YYYYMMDD) for range comparison, local time */
+function ymdInt(ymd){ let p = ymd.split("-"); return (+p[0])*10000 + (+p[1])*100 + (+p[2]); }
+function dateInt(v){ let d = new Date(v); if(isNaN(d.getTime())) return null; return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); }
+
+function clearDates(){
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  render();
 }
 
 function toggleCard(headEl){ headEl.parentNode.classList.toggle("open"); }
 
-document.getElementById("searchInput").addEventListener("input", render);
 document.getElementById("sortSel").addEventListener("change", render);
-document.getElementById("dateInput").addEventListener("change", render);
+document.getElementById("fromDate").addEventListener("change", render);
+document.getElementById("toDate").addEventListener("change", render);
 
 loadLeads();
 </script>
