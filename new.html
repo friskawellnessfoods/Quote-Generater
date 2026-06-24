@@ -135,13 +135,23 @@ transform:scale(1.1);
 /* ---- main column / card ---- */
 .main{ flex:1; max-width:480px; width:100%; }
 
-.progressWrap{ margin-bottom:16px; }
-.progressTop{
-display:flex; justify-content:space-between; align-items:center;
-font-size:13px; color:var(--muted); margin-bottom:8px; font-weight:600;
+.progressWrap{ margin-bottom:18px; }
+
+/* horizontal step rail (mobile) */
+.mNodes{ position:relative; display:flex; justify-content:space-between; padding:4px 0; }
+.mTrack,.mFill{ position:absolute; top:50%; transform:translateY(-50%); height:3px; border-radius:9px; z-index:0; }
+.mTrack{ left:18px; right:18px; background:#e1e6f2; }
+.mFill{ left:18px; width:0; background:var(--accent); transition:width .35s ease; }
+.mNode{
+position:relative; z-index:2; flex:none;
+width:36px; height:36px; border-radius:50%;
+background:white; border:2px solid #e1e6f2;
+display:flex; align-items:center; justify-content:center;
+color:#aab1c9; transition:all .25s ease;
 }
-.progressBar{ height:7px; background:#e4e8f4; border-radius:99px; overflow:hidden; }
-.progressFill{ height:100%; width:0%; background:var(--accent); border-radius:99px; transition:width .35s ease; }
+.mNode svg{ width:17px; height:17px; }
+.mNode.done{ border-color:var(--accent); color:var(--accent); }
+.mNode.active{ background:var(--navy); border-color:var(--navy); color:white; box-shadow:0 4px 12px rgba(10,26,110,0.30); }
 
 .card{
 background:white;
@@ -306,11 +316,10 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <div class="main">
 
 <div class="progressWrap">
-<div class="progressTop">
-<span id="progressLabel">Step 1 of 8</span>
-<span id="progressPct">12%</span>
+<div class="mNodes" id="mNodes">
+<div class="mTrack"></div>
+<div class="mFill" id="mFill"></div>
 </div>
-<div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
 </div>
 
 <div class="card">
@@ -448,7 +457,7 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <script>
 
 /* ============================================================ CONFIG ============================================================ */
-const PRICING_URL  = "https://script.google.com/macros/s/AKfycbxxSjsVQGyThgEYGZzmbrkloz5Qwsjl3XnJCmzlNApadyeBKI1K-9HFTHFKw2Qvufk/exec";
+const PRICING_URL  = "https://script.google.com/macros/s/AKfycbyvF9_5rPSzW0gsFI1qGSFQFGRug8fYYYPwLe8zga6-0mxhP3G04xwUpocb3xZxhYQ/exec";
 const WHATSAPP_NUMBER = "919390097670";
 const SUPPORT_NUMBER  = "918400964170";
 const KITCHEN = { lat:17.452623115758335, lng:78.41967516576499 };
@@ -497,14 +506,39 @@ const RAIL = [
   });
   document.getElementById("railNodes").innerHTML = html;
 })();
+
+/* build horizontal mobile rail (icons only) */
+(function buildMobileRail(){
+  let html="";
+  RAIL.forEach((n,i)=>{
+    html += '<div class="mNode" data-mrail="'+i+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+n.svg+'</svg></div>';
+  });
+  document.getElementById("mNodes").insertAdjacentHTML("beforeend", html);
+})();
+
 function renderRail(idx){
+  /* desktop vertical rail */
   document.querySelectorAll('.railNode').forEach((node,i)=>{
     node.classList.toggle('done', i < idx);
     node.classList.toggle('active', i === idx);
   });
   let capped = Math.min(idx, RAIL.length-1);
   document.getElementById("railFill").style.height = (capped*64) + "px";
+
+  /* mobile horizontal rail */
+  let mNodes = document.querySelectorAll('.mNode');
+  mNodes.forEach((node,i)=>{
+    node.classList.toggle('done', i < idx);
+    node.classList.toggle('active', i === idx);
+  });
+  let track = document.querySelector('.mNodes');
+  if(track && mNodes.length){
+    let span = track.clientWidth - 36;            /* first centre to last centre */
+    let frac = capped / (RAIL.length - 1);
+    document.getElementById("mFill").style.width = (span * frac) + "px";
+  }
 }
+window.addEventListener("resize", function(){ renderRail(current); });
 
 /* ============================================================ WIZARD NAV ============================================================ */
 const steps = document.querySelectorAll('[data-step]');
@@ -514,17 +548,6 @@ let current = 0;
 function showStep(idx){
   steps.forEach((s,i)=> s.classList.toggle('active', i===idx));
   current = idx;
-  const fill = document.getElementById('progressFill');
-  if(idx < TOTAL_INPUT_STEPS){
-    const pct = Math.round(((idx+1)/TOTAL_INPUT_STEPS)*100);
-    fill.style.width = pct+"%";
-    document.getElementById('progressLabel').innerText = "Step "+(idx+1)+" of "+TOTAL_INPUT_STEPS;
-    document.getElementById('progressPct').innerText = pct+"%";
-  }else{
-    fill.style.width = "100%";
-    document.getElementById('progressLabel').innerText = "Your plan";
-    document.getElementById('progressPct').innerText = "";
-  }
   renderRail(idx);
   window.scrollTo({ top:0, behavior:"smooth" });
 }
