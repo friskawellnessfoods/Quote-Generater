@@ -102,6 +102,7 @@ h1,h2,h3,.leadName,.statNum,.btn{ font-family:"Poppins",system-ui,sans-serif; }
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
 <input id="searchInput" type="text" placeholder="Search name or phone">
 </div>
+<input class="sortSel" id="dateInput" type="date" title="Filter by date">
 <select class="sortSel" id="sortSel">
 <option value="latest">Latest</option>
 <option value="oldest">Oldest</option>
@@ -211,10 +212,10 @@ function groupLeads(rows){
 function render(){
   let q = document.getElementById("searchInput").value.trim().toLowerCase();
   let sort = document.getElementById("sortSel").value;
+  let dateVal = document.getElementById("dateInput").value;   /* "" or yyyy-mm-dd */
 
-  let groups = groupLeads(ALL);
-
-  document.getElementById("statClients").innerText = groups.length;
+  /* --- top stats: always all-time overview --- */
+  document.getElementById("statClients").innerText = groupLeads(ALL).length;
   document.getElementById("statSubs").innerText = ALL.length;
   let todaySet = {};
   ALL.forEach(l=>{
@@ -224,6 +225,10 @@ function render(){
     }
   });
   document.getElementById("statToday").innerText = Object.keys(todaySet).length;
+
+  /* --- display set: optional date filter, then group --- */
+  let rows = dateVal ? ALL.filter(l=>sameDate(l.date, dateVal)) : ALL;
+  let groups = groupLeads(rows);
 
   let list = groups.filter(g=>{
     if(!q) return true;
@@ -241,8 +246,9 @@ function render(){
   });
 
   if(!list.length){
+    let msg = dateVal ? "No leads on this date." : (q ? "Try a different search." : "New leads will appear here.");
     document.getElementById("content").innerHTML =
-      "<div class='state'><div class='big'>No leads found</div>" + (q ? "Try a different search." : "New leads will appear here.") + "</div>";
+      "<div class='state'><div class='big'>No leads found</div>" + msg + "</div>";
     return;
   }
 
@@ -309,10 +315,18 @@ function distCmp(a,b,asc){
   return asc ? (a-b) : (b-a);
 }
 
+/* match a lead date against a yyyy-mm-dd value from the date input */
+function sameDate(v, ymd){
+  let d = new Date(v); if(isNaN(d.getTime())) return false;
+  let p = ymd.split("-");
+  return d.getFullYear()===+p[0] && (d.getMonth()+1)===+p[1] && d.getDate()===+p[2];
+}
+
 function toggleCard(headEl){ headEl.parentNode.classList.toggle("open"); }
 
 document.getElementById("searchInput").addEventListener("input", render);
 document.getElementById("sortSel").addEventListener("change", render);
+document.getElementById("dateInput").addEventListener("change", render);
 
 loadLeads();
 </script>
