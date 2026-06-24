@@ -582,9 +582,10 @@ function renderPlans(){
   Object.keys(PLANS).forEach(p=>{ if(!order.includes(p)) order.push(p); });
   let html="";
   order.forEach(p=>{
-    let isRec=(p===recommendedPlan);
-    html += '<div class="plan-card'+(isRec?' active':'')+'" onclick="selectPlan(this,\''+p+'\')">'+
-            (isRec?'<div class="recBadge">&#9733; Recommended</div>':'')+
+    let inGoal = GOAL_PLANS[selectedGoal].includes(p);   /* every goal plan gets a tag */
+    let isSelected = (p===recommendedPlan);              /* BMI pick is pre-selected */
+    html += '<div class="plan-card'+(isSelected?' active':'')+'" onclick="selectPlan(this,\''+p+'\')">'+
+            (inGoal?'<div class="recBadge">&#9733; Recommended</div>':'')+
             '<img src="'+PLANS[p].img+'" alt="'+PLANS[p].name+'"></div>';
   });
   document.getElementById("planList").innerHTML = html;
