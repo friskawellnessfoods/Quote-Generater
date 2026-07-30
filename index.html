@@ -706,7 +706,7 @@ function calculateDistance(destination, lat, lng){
     const element=response.rows[0].elements[0];
     distance=element.distance.value/1000;
     if(isFinite(lat) && isFinite(lng) && (lat!==0 || lng!==0)){
-      mapsLink="https://www.google.com/maps?q="+lat+"%2C"+lng;
+      mapsLink="https://www.google.com/maps?q="+lat+","+lng;
     } else {
       mapsLink="";
     }
@@ -878,7 +878,6 @@ function generateQuote(){
   let inch=document.getElementById("heightIn").value;
   let heightText=(ft||inch)?((ft||0)+"ft "+(inch||0)+"in"):"";
   let locationText=document.getElementById("location").value;
-  let locationToSave = mapsLink || locationText;
 
   fetch(PRICING_URL,{
     method:"POST",
@@ -889,7 +888,7 @@ function generateQuote(){
       bmi: bmiValue ? bmiValue.toFixed(1) : "",
       recommended: PLANS[recommendedPlan] ? PLANS[recommendedPlan].name : "",
       meals:meals.join(", "), addons:addons, duration:durationText, slots:slots.join(", "),
-      location:locationToSave, locationText:locationText, distance:roundedDistance, price:total,
+      location:locationText, locationText:locationText, distance:roundedDistance, price:total,
       mapsLink:mapsLink
     })
   });
