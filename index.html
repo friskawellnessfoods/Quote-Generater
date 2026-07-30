@@ -353,10 +353,10 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <div class="stepTitle">Welcome to Friska</div>
 <div class="stepSub">Let's start with a few details so we can prepare your plan.</div>
 
-<label class="fieldLabel">Your name</label>
-<input type="text" id="clientName" placeholder="Enter your name">
 <label class="fieldLabel">Phone number</label>
 <input type="tel" id="clientPhone" placeholder="10-digit mobile number" maxlength="10">
+<label class="fieldLabel">Your name</label>
+<input type="text" id="clientName" placeholder="Enter your name">
 
 <div class="navRow"><button class="btn btnPrimary" onclick="next(0)">Continue</button></div>
 </div>
@@ -366,12 +366,18 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <div class="stepTitle">Delivery location</div>
 <div class="stepSub">Tell us where we'll be delivering. This helps us check timing and delivery charges.</div>
 
-<div class="locWrap">
+<div class="locWrap" id="locWrapBox">
 <input id="location" type="text" placeholder="Enter delivery location">
 <div id="locationSpinner"></div>
 <button type="button" class="locBtn" onclick="useCurrentLocation()">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#0a1a6e" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="#0a1a6e"/></svg>
 </button>
+</div>
+
+<div class="addonBox" id="savedLocationBox" style="display:none;">
+<div class="addonHead">&#128205; Using your saved location</div>
+<div id="savedLocationText" style="font-size:14px;color:var(--muted);margin-top:6px;line-height:1.5;"></div>
+<button type="button" class="skipLink" style="margin:8px 0 0;" onclick="changeLocation()">Change location</button>
 </div>
 
 <div class="navRow"><button class="btn btnGhost" onclick="back(1)">&#8592;</button><button class="btn btnPrimary" onclick="next(1)">Continue</button></div>
@@ -507,6 +513,9 @@ let selectedPlan="", selectedGoal="", recommendedPlan="", bmiValue=0, distance=0
 let lastQuote=null;
 let seafoodQty=0;
 let seafoodMax=0;
+let mapsLink="";
+let returningLead=null;
+let phoneLookedUp="";
 fetch(PRICING_URL).then(r=>r.json()).then(d=>{ pricing=d; updateSeafoodPrice(); });
 function getPrice(key){ if(!pricing[key]) return 0; return Number(pricing[key]); }
 function updateSeafoodPrice(){
@@ -690,12 +699,18 @@ function initAutocomplete(){
   autocomplete=new google.maps.places.Autocomplete(input,{ componentRestrictions:{country:"in"}, locationBias:{ center:{lat:17.385044,lng:78.486671}, radius:50000 } });
   autocomplete.addListener("place_changed", function(){ const place=autocomplete.getPlace(); if(place && place.geometry) calculateDistance(place.geometry.location); });
 }
+function normalizeLatLng(dest){
+  if(dest && typeof dest.lat === "function") return { lat:dest.lat(), lng:dest.lng() };
+  return { lat:dest.lat, lng:dest.lng };
+}
 function calculateDistance(destination){
   const service=new google.maps.DistanceMatrixService();
   service.getDistanceMatrix({ origins:[KITCHEN], destinations:[destination], travelMode:"DRIVING" }, function(response,status){
     if(status!=="OK"){ return; }
     const element=response.rows[0].elements[0];
     distance=element.distance.value/1000;
+    let ll=normalizeLatLng(destination);
+    mapsLink="https://www.google.com/maps?q="+ll.lat+","+ll.lng;
     if(distance>20){ showPopup("Delivery location is more than 20 km away. This may affect delivery timing and meal plan availability."); }
   });
 }
@@ -714,7 +729,7 @@ function useCurrentLocation(){
     });
   }, function(){ spinner.style.display="none"; alert("Unable to fetch current location. Please allow location permission."); });
 }
-document.getElementById("location").addEventListener("input", function(){ distance=0; invalidateQuote(); });
+document.getElementById("location").addEventListener("input", function(){ distance=0; mapsLink=""; invalidateQuote(); });
 
 function refreshMorningSlot(){
   let breakfast=document.getElementById("breakfast").checked;
@@ -739,7 +754,48 @@ function validateSlots(){
   return true;
 }
 document.getElementById("clientName").addEventListener("input", invalidateQuote);
-document.getElementById("clientPhone").addEventListener("input", invalidateQuote);
+document.getElementById("clientPhone").addEventListener("input", function(){
+  invalidateQuote();
+  let phone=this.value.replace(/\D/g,'');
+  if(phone.length===10 && phone!==phoneLookedUp){
+    phoneLookedUp=phone;
+    lookupLead(phone);
+  }
+});
+
+function lookupLead(phone){
+  if(!PRICING_URL) return;
+  fetch(PRICING_URL+"?action=leadByPhone&phone="+phone)
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d || !d.found) return;
+      returningLead=d.lead;
+      if(returningLead.name) document.getElementById("clientName").value=returningLead.name;
+      if(returningLead.age) document.getElementById("age").value=returningLead.age;
+      if(returningLead.height){
+        let m=/(\d+)\s*ft\s*(\d+)?/i.exec(returningLead.height);
+        if(m){ document.getElementById("heightFt").value=m[1]; document.getElementById("heightIn").value=m[2]||0; }
+      }
+      if(returningLead.weight) document.getElementById("weight").value=returningLead.weight;
+      if(returningLead.location && Number(returningLead.distance)>0){
+        distance=Number(returningLead.distance);
+        mapsLink=returningLead.mapsLink||"";
+        document.getElementById("location").value=returningLead.location;
+        document.getElementById("savedLocationText").innerHTML=returningLead.location+(mapsLink?" &middot; <a href='"+mapsLink+"' target='_blank'>View on map</a>":"");
+        document.getElementById("savedLocationBox").style.display="block";
+        document.getElementById("locWrapBox").style.display="none";
+      }
+      showPopup("Welcome back! We've filled in your saved details.");
+    })
+    .catch(()=>{});
+}
+function changeLocation(){
+  distance=0; mapsLink="";
+  document.getElementById("location").value="";
+  document.getElementById("savedLocationBox").style.display="none";
+  document.getElementById("locWrapBox").style.display="block";
+  invalidateQuote();
+}
 
 function invalidateQuote(){
   document.getElementById("quoteResult").innerHTML="";
@@ -831,7 +887,8 @@ function generateQuote(){
       bmi: bmiValue ? bmiValue.toFixed(1) : "",
       recommended: PLANS[recommendedPlan] ? PLANS[recommendedPlan].name : "",
       meals:meals.join(", "), addons:addons, duration:durationText, slots:slots.join(", "),
-      location:document.getElementById("location").value, distance:roundedDistance, price:total
+      location:document.getElementById("location").value, distance:roundedDistance, price:total,
+      mapsLink:mapsLink
     })
   });
 
