@@ -280,18 +280,25 @@ padding:18px 12px; cursor:pointer; transition:all .15s ease; text-align:center;
 .skipLink{ display:block; width:100%; margin-top:16px; background:transparent; border:none; color:#aab; font-size:12px; text-decoration:underline; cursor:pointer; padding:4px; }
 
 .resultCard{
-background:linear-gradient(140deg,var(--navy) 0%,#1c318f 60%,#13a06f 140%);
-border-radius:22px; padding:30px 22px; text-align:center; color:white;
-box-shadow:0 16px 36px rgba(10,26,110,0.28);
+background:white;
+border:1.5px solid #e2e7f1;
+border-left:4px solid var(--navy);
+border-radius:14px;
+padding:18px 20px;
+margin-top:16px;
+box-shadow:0 4px 14px rgba(20,33,62,0.06);
 }
-.resultTick{ width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:27px; }
-.resultEyebrow{ font-size:12px; letter-spacing:1.6px; opacity:.85; font-weight:700; }
-.resultPrice{ font-size:44px; font-weight:800; margin:6px 0 2px; }
-.resultNote{ font-size:13px; opacity:.85; }
-.resultPlan{ display:inline-block; margin-top:14px; background:rgba(255,255,255,0.18); padding:7px 16px; border-radius:99px; font-size:13.5px; font-weight:600; }
-.trialLine{ margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.35); font-size:15px; font-weight:700; color:#c9f7e4; }
-.trialOpt{ display:flex; align-items:center; justify-content:center; gap:9px; margin-top:12px; font-size:13.5px; font-weight:600; cursor:pointer; }
-.trialOpt input{ width:18px; height:18px; accent-color:var(--accent); flex:0 0 auto; }
+.resultTop{ display:flex; align-items:center; gap:12px; }
+.resultTick{ width:34px; height:34px; border-radius:50%; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none; }
+.resultMeta{ flex:1; min-width:0; }
+.resultEyebrow{ font-size:11px; letter-spacing:1px; font-weight:700; color:var(--muted); text-transform:uppercase; }
+.resultPlan{ font-size:14.5px; font-weight:700; color:var(--navy); margin-top:1px; }
+.resultPriceRow{ display:flex; align-items:baseline; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid #eef1f7; }
+.resultPrice{ font-size:28px; font-weight:800; color:var(--navy); }
+.resultNote{ font-size:12px; color:var(--muted); }
+.trialLine{ margin-top:12px; padding:10px 12px; background:var(--accent-soft); border-radius:10px; font-size:13px; font-weight:700; color:#0b6b53; }
+.trialOpt{ display:flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; font-weight:600; color:var(--navy); cursor:pointer; }
+.trialOpt input{ width:17px; height:17px; accent-color:var(--accent); flex:0 0 auto; }
 
 .summaryBox{ background:white; border-radius:18px; padding:16px 18px; margin-top:16px; box-shadow:0 4px 14px rgba(20,33,62,0.06); font-size:14px; }
 .summaryBox .row{ display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid #f0f2f7; }
@@ -302,7 +309,8 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 .toastPopup{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:16px 22px; border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,0.18); font-size:15px; font-weight:500; color:#333; z-index:9999; display:none; max-width:280px; text-align:center; }
 
 .bookBar{ position:fixed; bottom:0; left:0; right:0; background:rgba(255,255,255,0.96); backdrop-filter:blur(8px); padding:14px 18px; border-top:1px solid #eee; box-shadow:0 -3px 12px rgba(0,0,0,0.07); display:none; z-index:50; }
-.bookBar button{ display:block; max-width:340px; width:100%; margin:0 auto; padding:16px; border-radius:14px; border:none; background:#25D366; color:white; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(37,211,102,0.32); }
+.bookBar button{ display:block; max-width:340px; width:100%; margin:0 auto; padding:16px; border-radius:14px; border:none; background:var(--navy); color:white; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(10,26,110,0.32); }
+.bookBar button:active{ background:var(--navy-deep); }
 
 @media(min-width:920px){
 .stepRail{ display:block; width:218px; position:sticky; top:96px; }
@@ -470,8 +478,8 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <div class="stepEyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Done</div>
 <div class="stepTitle">You're all set</div>
 <div class="stepSub">Here's your personalised plan and estimated pricing.</div>
-<div id="quoteResult"></div>
 <div id="quoteSummary"></div>
+<div id="quoteResult"></div>
 <div class="navRow"><button class="btn btnGhost" onclick="back(8)">&#8592;</button></div>
 </div>
 
@@ -895,11 +903,17 @@ function generateQuote(){
 
   document.getElementById("quoteResult").innerHTML =
     "<div class='resultCard'>"+
-      "<div class='resultTick'>&#10003;</div>"+
-      "<div class='resultEyebrow'>ESTIMATED TOTAL</div>"+
-      "<div class='resultPrice'>&#8377;"+total.toFixed(0)+"</div>"+
-      "<div class='resultNote'>Including delivery charges &amp; taxes</div>"+
-      "<div class='resultPlan'>"+planText+" &middot; "+durationText+"</div>"+
+      "<div class='resultTop'>"+
+        "<div class='resultTick'>&#10003;</div>"+
+        "<div class='resultMeta'>"+
+          "<div class='resultEyebrow'>Estimated total</div>"+
+          "<div class='resultPlan'>"+planText+" &middot; "+durationText+"</div>"+
+        "</div>"+
+      "</div>"+
+      "<div class='resultPriceRow'>"+
+        "<div class='resultPrice'>&#8377;"+total.toFixed(0)+"</div>"+
+        "<div class='resultNote'>incl. delivery &amp; taxes</div>"+
+      "</div>"+
       (duration!=="d" ? (
         "<div class='trialLine'>Or start with a 2-Day Trial: &#8377;"+trialTotal.toFixed(0)+"</div>"+
         "<label class='trialOpt'><input type='checkbox' id='startTrial'> Start my 2-day trial first (from tomorrow)</label>"
