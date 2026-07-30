@@ -296,9 +296,15 @@ box-shadow:0 4px 14px rgba(20,33,62,0.06);
 .resultPriceRow{ display:flex; align-items:baseline; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid #eef1f7; }
 .resultPrice{ font-size:28px; font-weight:800; color:var(--navy); }
 .resultNote{ font-size:12px; color:var(--muted); }
-.trialLine{ margin-top:12px; padding:10px 12px; background:var(--accent-soft); border-radius:10px; font-size:13px; font-weight:700; color:#0b6b53; }
-.trialOpt{ display:flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; font-weight:600; color:var(--navy); cursor:pointer; }
-.trialOpt input{ width:17px; height:17px; accent-color:var(--accent); flex:0 0 auto; }
+.trialBlock{ margin-top:14px; padding:16px; background:var(--accent-soft); border-radius:14px; }
+.trialEyebrow{ font-size:11px; letter-spacing:1px; font-weight:700; color:var(--accent); text-transform:uppercase; }
+.trialPriceRow{ display:flex; align-items:baseline; justify-content:space-between; margin-top:6px; }
+.trialPrice{ font-size:26px; font-weight:800; color:#0b6b53; }
+.trialNote{ font-size:12px; color:#0b6b53; opacity:.85; }
+.trialOpt{ display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13.5px; font-weight:700; color:var(--navy); cursor:pointer; }
+.trialOpt input{ width:18px; height:18px; accent-color:var(--accent); flex:0 0 auto; }
+.fullPriceBanner{ margin-top:12px; padding:10px 14px; background:#f4f7fc; border-radius:10px; display:flex; align-items:baseline; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--muted); }
+.fullPriceBanner b{ color:var(--navy); font-size:14px; }
 
 .summaryBox{ background:white; border-radius:18px; padding:16px 18px; margin-top:16px; box-shadow:0 4px 14px rgba(20,33,62,0.06); font-size:14px; }
 .summaryBox .row{ display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid #f0f2f7; }
@@ -901,6 +907,26 @@ function generateQuote(){
     })
   });
 
+  let priceBlock;
+  if(duration!=="d"){
+    priceBlock =
+      "<div class='trialBlock'>"+
+        "<div class='trialEyebrow'>2-Day Trial</div>"+
+        "<div class='trialPriceRow'>"+
+          "<div class='trialPrice'>&#8377;"+trialTotal.toFixed(0)+"</div>"+
+          "<div class='trialNote'>Try it first, from tomorrow</div>"+
+        "</div>"+
+        "<label class='trialOpt'><input type='checkbox' id='startTrial'> Start my 2-day trial first</label>"+
+      "</div>"+
+      "<div class='fullPriceBanner'><span>Full plan &middot; incl. delivery &amp; taxes</span><b>&#8377;"+total.toFixed(0)+"</b></div>";
+  } else {
+    priceBlock =
+      "<div class='resultPriceRow'>"+
+        "<div class='resultPrice'>&#8377;"+total.toFixed(0)+"</div>"+
+        "<div class='resultNote'>incl. delivery &amp; taxes</div>"+
+      "</div>";
+  }
+
   document.getElementById("quoteResult").innerHTML =
     "<div class='resultCard'>"+
       "<div class='resultTop'>"+
@@ -910,14 +936,7 @@ function generateQuote(){
           "<div class='resultPlan'>"+planText+" &middot; "+durationText+"</div>"+
         "</div>"+
       "</div>"+
-      "<div class='resultPriceRow'>"+
-        "<div class='resultPrice'>&#8377;"+total.toFixed(0)+"</div>"+
-        "<div class='resultNote'>incl. delivery &amp; taxes</div>"+
-      "</div>"+
-      (duration!=="d" ? (
-        "<div class='trialLine'>Or start with a 2-Day Trial: &#8377;"+trialTotal.toFixed(0)+"</div>"+
-        "<label class='trialOpt'><input type='checkbox' id='startTrial'> Start my 2-day trial first (from tomorrow)</label>"
-      ) : "")+
+      priceBlock+
     "</div>";
 
   document.getElementById("quoteSummary").innerHTML =
