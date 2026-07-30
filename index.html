@@ -252,6 +252,18 @@ padding:18px 12px; cursor:pointer; transition:all .15s ease; text-align:center;
 .addonTitle{ font-weight:700; color:var(--navy); font-size:15px; }
 .addonSub{ font-size:12px; color:var(--muted); }
 .addonPrice{ font-weight:800; color:var(--accent); font-size:14px; white-space:nowrap; }
+.infoNote{ margin-top:16px; background:var(--accent-soft); border:1px solid #cdeee2; color:#0b6b53; border-radius:14px; padding:13px 15px; font-size:13px; line-height:1.5; }
+.infoNote b{ color:var(--navy); }
+.addonBox{ margin-top:18px; border:1.5px solid #e2e7f1; border-radius:16px; padding:14px 16px; background:#fbfcfe; }
+.addonHead{ font-weight:700; color:var(--navy); font-size:15px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.addonTag{ font-size:11.5px; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:3px 9px; border-radius:99px; }
+.addonBody{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; }
+.addonQlabel{ font-size:13px; color:var(--muted); }
+.stepper{ display:flex; align-items:center; gap:14px; flex:0 0 auto; }
+.stepper button{ width:38px; height:38px; border-radius:11px; border:1.5px solid #e2e7f1; background:white; font-size:20px; font-weight:700; color:var(--navy); cursor:pointer; line-height:1; }
+.stepper button:active{ background:#eef1fb; }
+.stepper span{ min-width:26px; text-align:center; font-size:18px; font-weight:800; color:var(--navy); }
+.addonNote{ margin-top:12px; font-size:12px; color:var(--muted); line-height:1.4; }
 
 .locWrap{ position:relative; margin-top:10px; }
 .locWrap input{ padding-right:54px; }
@@ -412,11 +424,7 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <label class="tile" style="--ta:#3B82F6;--tint:#E8F1FE;"><input type="checkbox" id="dinner"><div class="tileIcon">&#127858;</div><div class="tileLabel">Dinner</div><div class="tileCheck">&#10003;</div></label>
 <label class="tile" style="--ta:#14B8A6;--tint:#E5F6F4;"><input type="checkbox" id="juice2"><div class="tileIcon">&#129380;</div><div class="tileLabel">2 Juices</div><div class="tileCheck">&#10003;</div></label>
 </div>
-<label class="addonRow" id="seafoodRow">
-<input type="checkbox" id="seafood">
-<div class="addonMain"><span class="addonTitle">&#129424; Add Seafood</span><span class="addonSub">Premium seafood option</span></div>
-<div class="addonPrice" id="seafoodPrice">+&#8377;90/day</div>
-</label>
+<div class="infoNote">&#129424; <b>Seafood meals</b> are available as an add-on (<span id="seafoodNotePrice">+&#8377;90</span> each) &mdash; you'll pick how many after choosing your duration. Juices &amp; snacks can be added now, or anytime later during your subscription.</div>
 <div class="navRow"><button class="btn btnGhost" onclick="back(5)">&#8592;</button><button class="btn btnPrimary" onclick="next(5)">Continue</button></div>
 </div>
 
@@ -441,6 +449,12 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 <label class="tile" id="morningLabel" style="--ta:#F59E0B;--tint:#FEF3E2;"><input type="checkbox" id="morning"><div class="tileIcon">&#127749;</div><div class="tileLabel">Morning</div><div class="tileTime">7am - 8am</div><div class="tileCheck">&#10003;</div></label>
 <label class="tile" style="--ta:#F97316;--tint:#FFF0E6;"><input type="checkbox" id="afternoon"><div class="tileIcon">&#9728;</div><div class="tileLabel">Afternoon</div><div class="tileTime">11:30am - 1:30pm</div><div class="tileCheck">&#10003;</div></label>
 <label class="tile" style="--ta:#6366F1;--tint:#ECECFB;"><input type="checkbox" id="evening"><div class="tileIcon">&#127769;</div><div class="tileLabel">Evening</div><div class="tileTime">6pm - 8pm</div><div class="tileCheck">&#10003;</div></label>
+</div>
+<div class="addonBox">
+<div class="addonHead">&#129424; Seafood meals <span class="addonTag" id="seafoodTag">Add-on &middot; +&#8377;90 each</span></div>
+<div class="addonBody"><span class="addonQlabel">How many seafood meals in this subscription?</span>
+<div class="stepper"><button type="button" onclick="seafoodStep(-1)">&minus;</button><span id="seafoodQty">0</span><button type="button" onclick="seafoodStep(1)">+</button></div></div>
+<div class="addonNote">Optional &mdash; leave at 0 if not needed. You can also add seafood, juices or snacks anytime later during your subscription.</div>
 </div>
 <div class="navRow"><button class="btn btnGhost" onclick="back(7)">&#8592;</button><button class="btn btnPrimary" onclick="next(7)">See your price</button></div>
 </div>
@@ -490,9 +504,19 @@ function recommendByBMI(goal, bmi){
 
 let selectedPlan="", selectedGoal="", recommendedPlan="", bmiValue=0, distance=0, pricing={};
 let lastQuote=null;
+let seafoodQty=0;
 fetch(PRICING_URL).then(r=>r.json()).then(d=>{ pricing=d; updateSeafoodPrice(); });
 function getPrice(key){ if(!pricing[key]) return 0; return Number(pricing[key]); }
-function updateSeafoodPrice(){ let el=document.getElementById("seafoodPrice"); if(el) el.innerHTML="+&#8377;"+(getPrice("seafood")||0)+"/day"; }
+function updateSeafoodPrice(){
+  let p=getPrice("seafood")||0;
+  let a=document.getElementById("seafoodTag"); if(a) a.innerHTML="Add-on &middot; +&#8377;"+p+" each";
+  let b=document.getElementById("seafoodNotePrice"); if(b) b.innerHTML="+&#8377;"+p;
+}
+function seafoodStep(d){
+  seafoodQty=Math.max(0, seafoodQty + d);
+  let el=document.getElementById("seafoodQty"); if(el) el.textContent=seafoodQty;
+  invalidateQuote();
+}
 
 const RAIL = [
   { label:"Your details", svg:'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>' },
@@ -557,7 +581,7 @@ function showStep(idx){
 function back(fromIdx){ showStep(fromIdx-1); }
 function next(fromIdx){ if(!validateStep(fromIdx)) return; showStep(fromIdx+1); onEnter(fromIdx+1); }
 function autoNext(stepIdx){ setTimeout(function(){ if(current===stepIdx) next(stepIdx); }, 280); }
-function onEnter(idx){ if(idx===4) renderPlans(); if(idx===5) updateSeafoodPrice(); if(idx===7) refreshMorningSlot(); if(idx===8) generateQuote(); }
+function onEnter(idx){ if(idx===4) renderPlans(); if(idx===5) updateSeafoodPrice(); if(idx===7){ refreshMorningSlot(); updateSeafoodPrice(); } if(idx===8) generateQuote(); }
 
 function validateStep(idx){
   if(idx===0){
@@ -632,11 +656,9 @@ function bindTiles(){
     });
   });
   document.querySelectorAll('input[name="duration"]').forEach(r=>{ r.addEventListener('change', function(){ invalidateQuote(); autoNext(6); }); });
-  ["breakfast","lunch","dinner","snack","juice1","juice2","seafood","morning","afternoon","evening"].forEach(id=>{
+  ["breakfast","lunch","dinner","snack","juice1","juice2","morning","afternoon","evening"].forEach(id=>{
     let el=document.getElementById(id); if(el) el.addEventListener("change", invalidateQuote);
   });
-  let sf=document.getElementById("seafood");
-  if(sf) sf.addEventListener("change", function(){ this.closest(".addonRow").classList.toggle("on", this.checked); });
 }
 
 let autocomplete;
@@ -717,7 +739,6 @@ function generateQuote(){
   let snack=document.getElementById("snack").checked;
   let juice1=document.getElementById("juice1").checked;
   let juice2=document.getElementById("juice2").checked;
-  let seafood=document.getElementById("seafood").checked;
   let morning=document.getElementById("morning").checked;
   let afternoon=document.getElementById("afternoon").checked;
   let evening=document.getElementById("evening").checked;
@@ -732,7 +753,6 @@ function generateQuote(){
     if(snack)  f+=getPrice(prefix+durKey+"snack");
     if(juice1) f+=getPrice(prefix+durKey+"juice1");
     if(juice2) f+=getPrice(prefix+durKey+"juice2")*2;
-    if(seafood) f+=getPrice("seafood");
     return f;
   }
   let foodPerDay=foodPerDayFor(dur);
@@ -742,7 +762,8 @@ function generateQuote(){
   if(duration=="m") days=26;
   if(duration=="q") days=78;
 
-  let foodTotal=foodPerDay*days;
+  let seafoodExtra=seafoodQty*getPrice("seafood");
+  let foodTotal=foodPerDay*days + seafoodExtra;
   let trips=0;
   if(morning) trips++;
   if(afternoon) trips++;
@@ -767,7 +788,7 @@ function generateQuote(){
   if(snack) meals.push("Snack");
   if(juice1) meals.push("1 Juice");
   if(juice2) meals.push("2 Juices");
-  let addons = seafood ? "Seafood" : "";
+  let addons = seafoodQty>0 ? ("Seafood x"+seafoodQty) : "";
   let slots=[];
   if(morning) slots.push("Morning");
   if(afternoon) slots.push("Afternoon");
@@ -808,7 +829,7 @@ function generateQuote(){
     "<div class='summaryBox'>"+
       row("Plan",planText)+ row("Goal",GOAL_NAME[selectedGoal])+
       row("Meals",meals.join(", "))+
-      (seafood ? row("Add-on","Seafood (+&#8377;"+getPrice("seafood")+"/day)") : "")+
+      (seafoodQty>0 ? row("Seafood", seafoodQty+" meal(s) (+&#8377;"+seafoodExtra+")") : "")+
       row("Duration",durationText)+
       row("Slots",slots.join(", "))+ row("Delivery",roundedDistance+" km")+
     "</div>";
