@@ -264,6 +264,7 @@ padding:18px 12px; cursor:pointer; transition:all .15s ease; text-align:center;
 .stepper button:active{ background:#eef1fb; }
 .stepper span{ min-width:26px; text-align:center; font-size:18px; font-weight:800; color:var(--navy); }
 .addonNote{ margin-top:12px; font-size:12px; color:var(--muted); line-height:1.4; }
+.addonMax{ font-size:12px; font-weight:700; color:var(--accent); }
 
 .locWrap{ position:relative; margin-top:10px; }
 .locWrap input{ padding-right:54px; }
@@ -452,7 +453,7 @@ box-shadow:0 16px 36px rgba(10,26,110,0.28);
 </div>
 <div class="addonBox">
 <div class="addonHead">&#129424; Seafood meals <span class="addonTag" id="seafoodTag">Add-on &middot; +&#8377;90 each</span></div>
-<div class="addonBody"><span class="addonQlabel">How many seafood meals in this subscription?</span>
+<div class="addonBody"><span class="addonQlabel">How many seafood meals? <span id="seafoodMaxLbl" class="addonMax"></span></span>
 <div class="stepper"><button type="button" onclick="seafoodStep(-1)">&minus;</button><span id="seafoodQty">0</span><button type="button" onclick="seafoodStep(1)">+</button></div></div>
 <div class="addonNote">Optional &mdash; leave at 0 if not needed. You can also add seafood, juices or snacks anytime later during your subscription.</div>
 </div>
@@ -505,6 +506,7 @@ function recommendByBMI(goal, bmi){
 let selectedPlan="", selectedGoal="", recommendedPlan="", bmiValue=0, distance=0, pricing={};
 let lastQuote=null;
 let seafoodQty=0;
+let seafoodMax=0;
 fetch(PRICING_URL).then(r=>r.json()).then(d=>{ pricing=d; updateSeafoodPrice(); });
 function getPrice(key){ if(!pricing[key]) return 0; return Number(pricing[key]); }
 function updateSeafoodPrice(){
@@ -512,9 +514,30 @@ function updateSeafoodPrice(){
   let a=document.getElementById("seafoodTag"); if(a) a.innerHTML="Add-on &middot; +&#8377;"+p+" each";
   let b=document.getElementById("seafoodNotePrice"); if(b) b.innerHTML="+&#8377;"+p;
 }
-function seafoodStep(d){
-  seafoodQty=Math.max(0, seafoodQty + d);
+function daysForDur(){
+  let el=document.querySelector('input[name="duration"]:checked');
+  let d=el?el.value:"";
+  return d==="w"?6 : d==="m"?26 : d==="q"?78 : d==="d"?2 : 0;
+}
+function computeSeafoodMax(){
+  let lunch=document.getElementById("lunch").checked;
+  let dinner=document.getElementById("dinner").checked;
+  let perDay=(lunch?1:0)+(dinner?1:0);          // seafood applies only to lunch/dinner
+  seafoodMax=perDay*daysForDur();
+  if(seafoodQty>seafoodMax) seafoodQty=0;
+  renderSeafood();
+}
+function renderSeafood(){
   let el=document.getElementById("seafoodQty"); if(el) el.textContent=seafoodQty;
+  let m=document.getElementById("seafoodMaxLbl");
+  if(m) m.textContent = seafoodMax>0 ? ("(max "+seafoodMax+")") : "(add lunch/dinner)";
+}
+function seafoodStep(d){
+  if(seafoodMax<=0){ seafoodQty=0; renderSeafood(); return; }
+  seafoodQty += d;
+  if(seafoodQty > seafoodMax) seafoodQty = 0;     // plus past max -> back to 0
+  if(seafoodQty < 0)          seafoodQty = seafoodMax; // minus below 0 -> jump to max
+  renderSeafood();
   invalidateQuote();
 }
 
@@ -581,7 +604,7 @@ function showStep(idx){
 function back(fromIdx){ showStep(fromIdx-1); }
 function next(fromIdx){ if(!validateStep(fromIdx)) return; showStep(fromIdx+1); onEnter(fromIdx+1); }
 function autoNext(stepIdx){ setTimeout(function(){ if(current===stepIdx) next(stepIdx); }, 280); }
-function onEnter(idx){ if(idx===4) renderPlans(); if(idx===5) updateSeafoodPrice(); if(idx===7){ refreshMorningSlot(); updateSeafoodPrice(); } if(idx===8) generateQuote(); }
+function onEnter(idx){ if(idx===4) renderPlans(); if(idx===5) updateSeafoodPrice(); if(idx===7){ refreshMorningSlot(); updateSeafoodPrice(); computeSeafoodMax(); } if(idx===8) generateQuote(); }
 
 function validateStep(idx){
   if(idx===0){
