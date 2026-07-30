@@ -697,20 +697,19 @@ let autocomplete;
 function initAutocomplete(){
   const input=document.getElementById("location");
   autocomplete=new google.maps.places.Autocomplete(input,{ componentRestrictions:{country:"in"}, locationBias:{ center:{lat:17.385044,lng:78.486671}, radius:50000 } });
-  autocomplete.addListener("place_changed", function(){ const place=autocomplete.getPlace(); if(place && place.geometry) calculateDistance(place.geometry.location); });
+  autocomplete.addListener("place_changed", function(){ const place=autocomplete.getPlace(); if(place && place.geometry){ calculateDistance(place.geometry.location, place.geometry.location.lat(), place.geometry.location.lng()); } });
 }
-function normalizeLatLng(dest){
-  if(dest && typeof dest.lat === "function") return { lat:dest.lat(), lng:dest.lng() };
-  return { lat:dest.lat, lng:dest.lng };
-}
-function calculateDistance(destination){
+function calculateDistance(destination, lat, lng){
   const service=new google.maps.DistanceMatrixService();
   service.getDistanceMatrix({ origins:[KITCHEN], destinations:[destination], travelMode:"DRIVING" }, function(response,status){
     if(status!=="OK"){ return; }
     const element=response.rows[0].elements[0];
     distance=element.distance.value/1000;
-    let ll=normalizeLatLng(destination);
-    mapsLink="https://www.google.com/maps?q="+ll.lat+","+ll.lng;
+    if(isFinite(lat) && isFinite(lng) && (lat!==0 || lng!==0)){
+      mapsLink="https://www.google.com/maps?q="+lat+"%2C"+lng;
+    } else {
+      mapsLink="";
+    }
     if(distance>20){ showPopup("Delivery location is more than 20 km away. This may affect delivery timing and meal plan availability."); }
   });
 }
@@ -724,7 +723,7 @@ function useCurrentLocation(){
     const geocoder=new google.maps.Geocoder();
     geocoder.geocode({ location:latlng }, function(results,status){
       spinner.style.display="none";
-      if(status==="OK" && results[0]){ document.getElementById("location").value=results[0].formatted_address; calculateDistance(latlng); }
+      if(status==="OK" && results[0]){ document.getElementById("location").value=results[0].formatted_address; calculateDistance(latlng, lat, lng); }
       else{ alert("Unable to determine address from location."); }
     });
   }, function(){ spinner.style.display="none"; alert("Unable to fetch current location. Please allow location permission."); });
@@ -777,11 +776,12 @@ function lookupLead(phone){
         if(m){ document.getElementById("heightFt").value=m[1]; document.getElementById("heightIn").value=m[2]||0; }
       }
       if(returningLead.weight) document.getElementById("weight").value=returningLead.weight;
-      if(returningLead.location && Number(returningLead.distance)>0){
+      let displayLoc = returningLead.locationText || returningLead.location;
+      if(displayLoc && Number(returningLead.distance)>0){
         distance=Number(returningLead.distance);
         mapsLink=returningLead.mapsLink||"";
-        document.getElementById("location").value=returningLead.location;
-        document.getElementById("savedLocationText").innerHTML=returningLead.location+(mapsLink?" &middot; <a href='"+mapsLink+"' target='_blank'>View on map</a>":"");
+        document.getElementById("location").value=displayLoc;
+        document.getElementById("savedLocationText").innerHTML=displayLoc+(mapsLink?" &middot; <a href='"+mapsLink+"' target='_blank'>View on map</a>":"");
         document.getElementById("savedLocationBox").style.display="block";
         document.getElementById("locWrapBox").style.display="none";
       }
@@ -877,6 +877,8 @@ function generateQuote(){
   let ft=document.getElementById("heightFt").value;
   let inch=document.getElementById("heightIn").value;
   let heightText=(ft||inch)?((ft||0)+"ft "+(inch||0)+"in"):"";
+  let locationText=document.getElementById("location").value;
+  let locationToSave = mapsLink || locationText;
 
   fetch(PRICING_URL,{
     method:"POST",
@@ -887,7 +889,7 @@ function generateQuote(){
       bmi: bmiValue ? bmiValue.toFixed(1) : "",
       recommended: PLANS[recommendedPlan] ? PLANS[recommendedPlan].name : "",
       meals:meals.join(", "), addons:addons, duration:durationText, slots:slots.join(", "),
-      location:document.getElementById("location").value, distance:roundedDistance, price:total,
+      location:locationToSave, locationText:locationText, distance:roundedDistance, price:total,
       mapsLink:mapsLink
     })
   });
