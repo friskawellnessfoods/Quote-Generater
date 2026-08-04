@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Friska Quote Generator</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1a6e">
+<script>
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js'); }
+</script>
+
+<style>
+:root{ --navy:#0a1a6e; --navy-deep:#08155a; --accent:#10b981; --bg:#f4f7fc; --ink:#16213e; --muted:#6b7596; --line:#dfe4ef; }
+*{ box-sizing:border-box; }
+body{ font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); margin:0; }
+.wrap{ max-width:680px; margin:0 auto; padding:12px 12px 40px; }
+
+.head{ display:flex; align-items:baseline; gap:8px; margin:4px 2px 12px; }
+.head h1{ font-size:17px; font-weight:700; color:var(--navy); margin:0; }
+.head span{ font-size:11.5px; color:var(--muted); }
+.head .pstat{ margin-left:auto; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px; }
+.pstat.ok{ background:#e7f7f1; color:var(--accent); }
+.pstat.load{ background:#eef1fb; color:var(--navy); }
+.pstat.err{ background:#fde8e8; color:#c0392b; }
+
+.card{ background:white; border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; }
+.card h2{ font-size:12.5px; font-weight:700; color:var(--navy); margin:0 0 9px; }
+
+label{ display:block; font-size:11.5px; font-weight:600; color:#445; margin:0 0 3px; }
+input,select{ width:100%; padding:8px 9px; border:1px solid var(--line); border-radius:7px; background:#fbfcfe; font-size:13.5px; color:var(--ink); font-family:inherit; }
+input:focus,select:focus{ outline:none; border-color:var(--accent); background:white; }
+input[type=number]{ -moz-appearance:textfield; }
+.field{ margin-bottom:9px; }
+.field:last-child{ margin-bottom:0; }
+.row{ display:grid; gap:9px; }
+.r2{ grid-template-columns:1fr 1fr; }
+.r3{ grid-template-columns:1fr 1fr 1fr; }
+@media(max-width:520px){ .r3{ grid-template-columns:1fr 1fr; } }
+
+.btn{ font-weight:700; font-size:13.5px; border:none; border-radius:8px; padding:10px; cursor:pointer; font-family:inherit; }
+.btnPrimary{ background:var(--navy); color:white; width:100%; }
+.btnPrimary:active{ background:var(--navy-deep); }
+.btnGhost{ flex:1; background:white; color:var(--navy); border:1px solid var(--line); }
+.btnRow{ display:flex; gap:8px; margin-top:8px; }
+
+.tileGrid{ display:grid; gap:8px; }
+.g4{ grid-template-columns:repeat(4,1fr); }
+.g3{ grid-template-columns:repeat(3,1fr); }
+@media(max-width:520px){ .g4{ grid-template-columns:1fr 1fr; } }
+.tile{ position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; background:white; border:2px solid #eaecf3; border-radius:10px; padding:9px 5px; cursor:pointer; text-align:center; user-select:none; }
+.tile .ic{ font-size:17px; line-height:1; }
+.tile .lb{ font-size:11.5px; font-weight:600; color:#444; }
+.tile.on{ border-color:var(--ta); background:var(--tint); }
+.tile.on .lb{ color:var(--ta); }
+.tile.dim{ opacity:.4; pointer-events:none; }
+.tile .ck{ position:absolute; top:4px; right:5px; font-size:10px; color:var(--ta); font-weight:700; display:none; }
+.tile.on .ck{ display:block; }
+
+.previewCard{ background:var(--navy); color:white; border:none; }
+.previewCard h2{ color:rgba(255,255,255,.7); font-size:10.5px; letter-spacing:1px; font-weight:700; }
+#preview{ white-space:pre-wrap; font-size:13.5px; line-height:1.5; margin:0; }
+.hint{ font-size:10.5px; color:var(--muted); margin-top:6px; }
+
+.toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--navy); color:white; padding:9px 15px; border-radius:9px; font-size:13px; font-weight:600; display:none; z-index:9; }
+@media print{ .head,.card:not(.previewCard),.btnRow,.hint,.toast{ display:none !important; } .previewCard{ background:white; color:black; } .previewCard h2{ color:#666; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head"><h1>Quote Generator</h1><span>walk-in clients</span><span class="pstat load" id="pstat">Loading prices…</span></div>
+
+  <!-- CLIENT QUOTE -->
+  <div class="card">
+    <h2>Client Quote</h2>
+
+    <div class="row r2">
+      <div class="field"><label>Plan</label>
+        <select id="plan">
+          <option value="NB">Nutri Balance</option>
+          <option value="HP">High Protein</option>
+          <option value="HC">High Carb</option>
+          <option value="LC">Low Carb</option>
+          <option value="NC">No Carb</option>
+        </select></div>
+      <div class="field"><label>Duration</label>
+        <select id="duration">
+          <option value="trial">2 Day Trial</option>
+          <option value="week">1 Week (6 days)</option>
+          <option value="month" selected>26 Days</option>
+          <option value="quarter">3 Months</option>
+        </select></div>
+    </div>
+
+    <div class="row r2">
+      <div class="field"><label>Distance (km)</label><input type="number" id="kms" min="0" step="0.1" placeholder="e.g. 6"></div>
+      <div class="field"><label>Delivery price &#8377; (optional)</label><input type="number" id="delivery_price" min="0" step="1" placeholder="overrides km"></div>
+    </div>
+
+    <div class="field"><label>Meals</label>
+      <div class="tileGrid g4" id="mealTiles">
+        <div class="tile" data-meal="breakfast" style="--ta:#F59E0B;--tint:#FEF3E2;"><span class="ck">&#10003;</span><div class="ic">&#127859;</div><div class="lb">Breakfast</div></div>
+        <div class="tile" data-meal="lunch" style="--ta:#10B981;--tint:#E7F7F1;"><span class="ck">&#10003;</span><div class="ic">&#127857;</div><div class="lb">Lunch</div></div>
+        <div class="tile" data-meal="dinner" style="--ta:#3B82F6;--tint:#E8F1FE;"><span class="ck">&#10003;</span><div class="ic">&#127858;</div><div class="lb">Dinner</div></div>
+        <div class="tile" data-meal="snack" style="--ta:#8B5CF6;--tint:#F1ECFD;"><span class="ck">&#10003;</span><div class="ic">&#127822;</div><div class="lb">Snack</div></div>
+      </div>
+    </div>
+
+    <div class="row r3">
+      <div class="field"><label>Juices/day</label>
+        <select id="juice_qty"><option value="0">None</option><option value="1">1 Juice</option><option value="2">2 Juices</option></select></div>
+      <div class="field"><label>Seafood days</label><input type="number" id="seafood_days" min="0" value="0"></div>
+      <div class="field"><label>Seafood (if 2 meals)</label>
+        <select id="seafood_meals_when_2"><option value="1">1 meal</option><option value="2">Both meals</option></select></div>
+    </div>
+
+    <div class="field"><label>Delivery slots <span style="font-weight:500;color:var(--muted)">— Morning = breakfast/juice only</span></label>
+      <div class="tileGrid g3" id="slotTiles">
+        <div class="tile" data-slot="morning" style="--ta:#F59E0B;--tint:#FEF3E2;"><span class="ck">&#10003;</span><div class="ic">&#127749;</div><div class="lb">Morning</div></div>
+        <div class="tile" data-slot="afternoon" style="--ta:#F97316;--tint:#FFF0E6;"><span class="ck">&#10003;</span><div class="ic">&#9728;</div><div class="lb">Afternoon</div></div>
+        <div class="tile" data-slot="evening" style="--ta:#6366F1;--tint:#ECECFB;"><span class="ck">&#10003;</span><div class="ic">&#127769;</div><div class="lb">Evening</div></div>
+      </div>
+      <p class="hint">More slots = more delivery trips (charged per trip per day).</p>
+    </div>
+  </div>
+
+  <button class="btn btnPrimary" id="genBtn">Generate Quote</button>
+
+  <!-- PREVIEW -->
+  <div class="card previewCard" style="margin-top:10px">
+    <h2>PREVIEW</h2>
+    <div id="preview">Pick the meals and tap Generate.</div>
+  </div>
+  <div class="btnRow">
+    <button class="btn btnGhost" id="copyBtn">Copy message</button>
+    <button class="btn btnGhost" id="printBtn">Print / PDF</button>
+  </div>
+  <div class="hint" style="text-align:center">Prices are read live from the sheet. GST on food only, not delivery.</div>
+
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const API = (typeof API_URL !== "undefined" && API_URL) ? API_URL : "";
+
+const PLAN_NAME={ NB:'Nutri Balance', HP:'High Protein', HC:'High Carb', LC:'Low Carb', NC:'No Carb' };
+const DUR_CODE={ trial:'d', week:'w', month:'m', quarter:'q' };
+const DUR_DAYS={ trial:2, week:6, month:26, quarter:78 };
+const DUR_LABEL={ trial:'2 Day Trial', week:'1 Week (6 days)', month:'26 Days', quarter:'3 Months' };
+
+let selMeals={breakfast:false,lunch:false,dinner:false,snack:false};
+let selSlots={morning:false,afternoon:false,evening:false};
+
+let pricing={}, priceLoaded=false;
+function loadPrices(){
+  setPStat('load','Loading prices…');
+  return fetch(API).then(r=>r.json()).then(d=>{ pricing=d||{}; priceLoaded=true; setPStat('ok','Live prices'); })
+    .catch(()=>{ priceLoaded=false; setPStat('err','Price load failed'); });
+}
+function setPStat(cls,txt){ let e=$('pstat'); e.className='pstat '+cls; e.textContent=txt; }
+function getPrice(key){ let v=pricing[key]; return v?Number(v):0; }
+
+function toast(m){ const t=$('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',1200); }
+function inr(n){ return '\u20B9'+new Intl.NumberFormat('en-IN',{maximumFractionDigits:0}).format(Math.round(n)); }
+
+function generate(){
+  if(!priceLoaded){ $('preview').textContent='Live prices not loaded yet — check connection.'; loadPrices(); return; }
+
+  const planSel=$('plan').value, plan=planSel.toLowerCase(), planName=PLAN_NAME[planSel];
+  const durSel=$('duration').value, durCode=DUR_CODE[durSel], days=DUR_DAYS[durSel], durLbl=DUR_LABEL[durSel];
+
+  const kms=Number($('kms').value||0);
+  const flatDelivery=Number($('delivery_price').value||0);
+  const juiceQty=Number($('juice_qty').value||0);
+  const seafoodDays=Number($('seafood_days').value||0);
+  const seafoodWhen2=Number($('seafood_meals_when_2').value||1);
+
+  const bf=selMeals.breakfast, lunch=selMeals.lunch, dinner=selMeals.dinner, snack=selMeals.snack;
+  const mains=(lunch?1:0)+(dinner?1:0);
+  if(!bf && !mains && !snack && juiceQty<=0 && seafoodDays<=0){ $('preview').textContent='Select at least one meal.'; return; }
+
+  const gst=getPrice('gst'), perKm=getPrice('delivery'), seafoodP=getPrice('seafood');
+
+  function k(item,dc){ return plan+'_'+dc+'_'+item; }
+  function juicePerDay(dc){ return juiceQty<=0?0 : juiceQty===1?getPrice(k('juice1',dc)) : getPrice(k('juice2',dc))*juiceQty; }
+  function foodPerDay(dc){
+    let f=0;
+    if(bf) f+=getPrice(k('breakfast',dc));
+    if(mains===1) f+=getPrice(k('lunch',dc));
+    if(mains===2) f+=getPrice(k('combo',dc))*2;
+    if(snack) f+=getPrice(k('snack',dc));
+    f+=juicePerDay(dc);
+    return f;
+  }
+
+  /* seafood = flat price per seafood meal, added once (not per day). only on lunch/dinner */
+  const seafoodMeals = (seafoodDays>0 && mains>0) ? seafoodDays*(mains===2?seafoodWhen2:1) : 0;
+  const seafoodExtra = seafoodMeals*seafoodP;
+
+  const trips=((selSlots.morning?1:0)+(selSlots.afternoon?1:0)+(selSlots.evening?1:0)) || 1;
+
+  /* ---- selected duration total ---- */
+  const foodTotal = foodPerDay(durCode)*days + seafoodExtra;
+  const gstAmt = foodTotal*(gst/100);
+  const delivery = flatDelivery>0 ? flatDelivery : kms*perKm*trips*days;
+  const total = foodTotal + gstAmt + delivery;
+
+  /* ---- 2-day trial (d_ prices, no seafood) ---- */
+  const foodTotalT = foodPerDay('d')*2;
+  const gstT = foodTotalT*(gst/100);
+  const deliveryT = flatDelivery>0 ? 0 : kms*perKm*trips*2;   /* flat price is plan-level */
+  const trialTotal = foodTotalT + gstT + deliveryT;
+
+  /* ---- labels ---- */
+  const items=[];
+  if(bf) items.push('Breakfast');
+  if(lunch) items.push('Lunch');
+  if(dinner) items.push('Dinner');
+  if(snack) items.push('Snack');
+  if(juiceQty>0) items.push(juiceQty>1? juiceQty+' Juices':'1 Juice');
+  if(seafoodMeals>0) items.push('Seafood x'+seafoodMeals);
+  const slotTxt=[];
+  if(selSlots.morning) slotTxt.push('Morning');
+  if(selSlots.afternoon) slotTxt.push('Afternoon');
+  if(selSlots.evening) slotTxt.push('Evening');
+
+  let out=planName+' Plan\n'+durLbl+'\n\n';
+  out+=items.join(' + ')+'\n';
+  if(slotTxt.length) out+='Slots: '+slotTxt.join(', ')+'\n';
+  out+='\nTotal: '+inr(total)+'/-\n';
+  if(durSel!=='trial') out+='2 day trial @ '+inr(trialTotal)+'/-\n';
+  out+='\nIncluding Delivery Charge & Taxes.';
+  $('preview').textContent=out;
+}
+
+function copyMsg(){
+  const t=($('preview').innerText||'').trim();
+  if(!t || t.startsWith('Pick the') || t.startsWith('Select at') || t.startsWith('Live prices')){ toast('Generate first'); return; }
+  if(navigator.clipboard?.writeText){ navigator.clipboard.writeText(t).then(()=>toast('Copied')).catch(()=>fb(t)); }
+  else fb(t);
+}
+function fb(t){ const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast('Copied'); }catch(e){ toast('Copy failed'); } document.body.removeChild(ta); }
+
+/* morning slot only when breakfast or juice present */
+function refreshSlotRule(){
+  const morningOk = selMeals.breakfast || Number($('juice_qty').value||0)>0;
+  const mt=document.querySelector('.tile[data-slot="morning"]');
+  mt.classList.toggle('dim', !morningOk);
+  if(!morningOk && selSlots.morning){ selSlots.morning=false; mt.classList.remove('on'); }
+}
+
+$('mealTiles').addEventListener('click',e=>{ const t=e.target.closest('.tile'); if(!t)return; const m=t.dataset.meal; selMeals[m]=!selMeals[m]; t.classList.toggle('on',selMeals[m]); refreshSlotRule(); });
+$('slotTiles').addEventListener('click',e=>{ const t=e.target.closest('.tile'); if(!t||t.classList.contains('dim'))return; const s=t.dataset.slot; selSlots[s]=!selSlots[s]; t.classList.toggle('on',selSlots[s]); });
+$('juice_qty').addEventListener('change',refreshSlotRule);
+$('genBtn').addEventListener('click',generate);
+$('copyBtn').addEventListener('click',copyMsg);
+$('printBtn').addEventListener('click',()=>window.print());
+
+loadPrices();
+refreshSlotRule();
+</script>
+</body>
+</html>
