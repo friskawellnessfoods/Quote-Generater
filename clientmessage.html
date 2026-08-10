@@ -203,10 +203,11 @@ function generate(){
     const perTrip = flatDelivery>0 ? flatDelivery : kms*P.perKm;
     const deliveryPerDay = perTrip*trips;
     const fM=foodPerDay*days, gM=fM*(P.gst/100);
-    const totalMonth = fM + gM + deliveryPerDay*days;
+    const deliveryMonth = deliveryPerDay*days;
+    const totalMonth = fM + gM + deliveryMonth;
     const tF=foodPerDay*trialDays;
     const trialTotal = tF + tF*(P.gst/100) + deliveryPerDay*trialDays;
-    return { totalMonth, trialTotal };
+    return { totalMonth, trialTotal, foodMonth: fM, gstPct: P.gst, deliveryMonth };
   }
 
   const blocks=[];
@@ -270,14 +271,16 @@ function generate(){
   }
 
   const head = planName+' Plan\n'+durLabel()+(discount>0? '\n'+discount+'% OFF' : '')+'\n\n';
-  let outHtml=head, outText=head, sumOrig=0;
+  let outHtml=head, outText=head, sumOrig=0, sumDiscTotal=0;
   blocks.forEach(b=>{
     sumOrig += b.totalMonth;
+    const discFood = b.foodMonth*(1-discount/100);
+    const discTotal = discFood + discFood*(b.gstPct/100) + b.deliveryMonth;  // GST on discounted food
+    sumDiscTotal += discTotal;
     let ph, pt;
     if(discount>0){
-      const disc=b.totalMonth*(1-discount/100);
-      ph='<s>'+inr(b.totalMonth)+'</s> '+inr(disc)+'/-';
-      pt='~'+inr(b.totalMonth)+'~ '+inr(disc)+'/-';
+      ph='<s>'+inr(b.totalMonth)+'</s> '+inr(discTotal)+'/-';
+      pt='~'+inr(b.totalMonth)+'~ '+inr(discTotal)+'/-';
     } else {
       ph=inr(b.totalMonth)+'/-'; pt=ph;
     }
@@ -286,7 +289,7 @@ function generate(){
   });
 
   if(blocks.length>1){
-    const sumDisc = discount>0 ? sumOrig*(1-discount/100) : sumOrig;
+    const sumDisc = discount>0 ? sumDiscTotal : sumOrig;
     let th, tt;
     if(discount>0){ th='<s>'+inr(sumOrig)+'</s> '+inr(sumDisc)+'/-'; tt='~'+inr(sumOrig)+'~ '+inr(sumDisc)+'/-'; }
     else { th=inr(sumOrig)+'/-'; tt=th; }
