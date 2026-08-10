@@ -270,8 +270,9 @@ function generate(){
   }
 
   const head = planName+' Plan\n'+durLabel()+(discount>0? '\n'+discount+'% OFF' : '')+'\n\n';
-  let outHtml=head, outText=head;
+  let outHtml=head, outText=head, sumOrig=0;
   blocks.forEach(b=>{
+    sumOrig += b.totalMonth;
     let ph, pt;
     if(discount>0){
       const disc=b.totalMonth*(1-discount/100);
@@ -283,6 +284,16 @@ function generate(){
     outHtml += b.label+'\n'+ph+'\n'+trialDays+' day trial @ '+inr(b.trialTotal)+'/-\n\n';
     outText += b.label+'\n'+pt+'\n'+trialDays+' day trial @ '+inr(b.trialTotal)+'/-\n\n';
   });
+
+  if(blocks.length>1){
+    const sumDisc = discount>0 ? sumOrig*(1-discount/100) : sumOrig;
+    let th, tt;
+    if(discount>0){ th='<s>'+inr(sumOrig)+'</s> '+inr(sumDisc)+'/-'; tt='~'+inr(sumOrig)+'~ '+inr(sumDisc)+'/-'; }
+    else { th=inr(sumOrig)+'/-'; tt=th; }
+    outHtml += 'Total: '+th+'\n\n';
+    outText += 'Total: '+tt+'\n\n';
+  }
+
   outHtml += 'Including Delivery Charge & Taxes.';
   outText += 'Including Delivery Charge & Taxes.';
   $('preview').innerHTML = outHtml;
