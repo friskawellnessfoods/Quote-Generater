@@ -96,7 +96,7 @@ input[type=number]{ -moz-appearance:textfield; }
 
     <div class="row r2">
       <div class="field"><label>Distance (km)</label><input type="number" id="kms" min="0" step="0.1" placeholder="e.g. 6"></div>
-      <div class="field"><label>Delivery price &#8377; (optional)</label><input type="number" id="delivery_price" min="0" step="1" placeholder="overrides km"></div>
+      <div class="field"><label>Delivery / trip &#8377; (optional)</label><input type="number" id="delivery_price" min="0" step="1" placeholder="per trip; overrides km"></div>
     </div>
 
     <div class="field"><label>Meals</label>
@@ -167,73 +167,110 @@ function getPrice(key){ let v=pricing[key]; return v?Number(v):0; }
 function toast(m){ const t=$('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',1200); }
 function inr(n){ return '\u20B9'+new Intl.NumberFormat('en-IN',{maximumFractionDigits:0}).format(Math.round(n)); }
 
+function cap(x){ return x.charAt(0).toUpperCase()+x.slice(1); }
+function aeSlots(){ return ['afternoon','evening'].filter(x=>selSlots[x]); }
+function durDays(){ return DUR_DAYS[$('duration').value]; }
+function durLabel(){ return DUR_LABEL[$('duration').value]; }
+
 function generate(){
-  if(!priceLoaded){ $('preview').textContent='Live prices not loaded yet — check connection.'; loadPrices(); return; }
+  if(!priceLoaded){ $('preview').textContent='Live prices not loaded yet \u2014 check connection.'; loadPrices(); return; }
 
   const planSel=$('plan').value, plan=planSel.toLowerCase(), planName=PLAN_NAME[planSel];
-  const durSel=$('duration').value, durCode=DUR_CODE[durSel], days=DUR_DAYS[durSel], durLbl=DUR_LABEL[durSel];
+  const dur=DUR_CODE[$('duration').value];
+  const days=durDays(), trialDays=2;
+
+  function kk(item){ return plan+'_'+dur+'_'+item; }
+  const P={
+    single:getPrice(kk('lunch')), double:getPrice(kk('combo')), bf:getPrice(kk('breakfast')),
+    seafood:getPrice('seafood'), snack:getPrice(kk('snack')), juice:getPrice(kk('juice1')),
+    gst:getPrice('gst'), perKm:getPrice('delivery')
+  };
 
   const kms=Number($('kms').value||0);
-  const flatDelivery=Number($('delivery_price').value||0);
+  const flatDelivery=Number($('delivery_price').value||0);   // if set, = delivery charge per trip
   const juiceQty=Number($('juice_qty').value||0);
   const seafoodDays=Number($('seafood_days').value||0);
   const seafoodWhen2=Number($('seafood_meals_when_2').value||1);
 
-  const bf=selMeals.breakfast, lunch=selMeals.lunch, dinner=selMeals.dinner, snack=selMeals.snack;
-  const mains=(lunch?1:0)+(dinner?1:0);
-  if(!bf && !mains && !snack && juiceQty<=0 && seafoodDays<=0){ $('preview').textContent='Select at least one meal.'; return; }
+  const hasMain = selMeals.lunch||selMeals.dinner||selMeals.snack||seafoodDays>0;
+  if(!hasMain && !selMeals.breakfast && juiceQty<=0){ $('preview').textContent='Select at least one meal.'; return; }
 
-  const gst=getPrice('gst'), perKm=getPrice('delivery'), seafoodP=getPrice('seafood');
-
-  function k(item,dc){ return plan+'_'+dc+'_'+item; }
-  function juicePerDay(dc){ return juiceQty<=0?0 : juiceQty===1?getPrice(k('juice1',dc)) : getPrice(k('juice2',dc))*juiceQty; }
-  function foodPerDay(dc){
-    let f=0;
-    if(bf) f+=getPrice(k('breakfast',dc));
-    if(mains===1) f+=getPrice(k('lunch',dc));
-    if(mains===2) f+=getPrice(k('combo',dc))*2;
-    if(snack) f+=getPrice(k('snack',dc));
-    f+=juicePerDay(dc);
-    return f;
+  // price + trial for one delivery block
+  function block(foodPerDay, trips){
+    const perTrip = flatDelivery>0 ? flatDelivery : kms*P.perKm;
+    const deliveryPerDay = perTrip*trips;
+    const fM=foodPerDay*days, gM=fM*(P.gst/100);
+    const totalMonth = fM + gM + deliveryPerDay*days;
+    const tF=foodPerDay*trialDays;
+    const trialTotal = tF + tF*(P.gst/100) + deliveryPerDay*trialDays;
+    return { totalMonth, trialTotal };
   }
 
-  /* seafood = flat price per seafood meal, added once (not per day). only on lunch/dinner */
-  const seafoodMeals = (seafoodDays>0 && mains>0) ? seafoodDays*(mains===2?seafoodWhen2:1) : 0;
-  const seafoodExtra = seafoodMeals*seafoodP;
+  const blocks=[];
 
-  const trips=((selSlots.morning?1:0)+(selSlots.afternoon?1:0)+(selSlots.evening?1:0)) || 1;
+  /* ---- MAIN block(s): lunch/dinner/snack/seafood/juice (afternoon/evening) ---- */
+  if(hasMain){
+    const bothMains = selMeals.lunch && selMeals.dinner;
+    const addonLbls=[];
+    if(selMeals.snack) addonLbls.push('Snack');
+    if(seafoodDays>0)  addonLbls.push('Seafood');
+    if(juiceQty>0)     addonLbls.push(juiceQty>1? juiceQty+' Juices':'1 Juice');
+    function addonsPerDay(applied){
+      let v=0;
+      if(selMeals.snack) v+=P.snack;
+      if(juiceQty>0)     v+=juiceQty*P.juice;
+      if(seafoodDays>0)  v+=(P.seafood*seafoodDays*applied)/days;
+      return v;
+    }
+    function lineLabel(base, slotTxt){ return [base, ...addonLbls].join(' + ')+' '+slotTxt; }
 
-  /* ---- selected duration total ---- */
-  const foodTotal = foodPerDay(durCode)*days + seafoodExtra;
-  const gstAmt = foodTotal*(gst/100);
-  const delivery = flatDelivery>0 ? flatDelivery : kms*perKm*trips*days;
-  const total = foodTotal + gstAmt + delivery;
+    if(bothMains){
+      const f1 = P.single*1 + addonsPerDay(1);
+      const r1 = block(f1, 1);
+      blocks.push({ label: lineLabel('Lunch','(Afternoon delivery)'), ...r1 });
 
-  /* ---- 2-day trial (d_ prices, no seafood) ---- */
-  const foodTotalT = foodPerDay('d')*2;
-  const gstT = foodTotalT*(gst/100);
-  const deliveryT = flatDelivery>0 ? 0 : kms*perKm*trips*2;   /* flat price is plan-level */
-  const trialTotal = foodTotalT + gstT + deliveryT;
+      let ae=aeSlots(); if(!ae.length) ae=['afternoon'];
+      const trips=ae.length;
+      const f2 = P.double*2 + addonsPerDay(seafoodWhen2);
+      const slotTxt2 = trips===1 ? '('+cap(ae[0])+' delivery)' : '(Afternoon & Evening deliveries)';
+      const r2 = block(f2, trips);
+      blocks.push({ label: lineLabel('Lunch + Dinner', slotTxt2), ...r2 });
+    } else {
+      const meals=(selMeals.lunch?1:0)+(selMeals.dinner?1:0);
+      let foodPerDay = P.single*meals + addonsPerDay(1);
+      let ae=aeSlots(); if(!ae.length) ae=['afternoon'];
+      const trips=ae.length;
+      const base=[];
+      if(selMeals.lunch)  base.push('Lunch');
+      if(selMeals.dinner) base.push('Dinner');
+      const baseStr = base.length? base.join(' + ') : (addonLbls.shift()||'Meal');
+      const slotTxt = trips===1 ? '('+cap(ae[0])+' delivery)' : '(Afternoon & Evening deliveries)';
+      const r=block(foodPerDay, trips);
+      blocks.push({ label: [baseStr, ...addonLbls].join(' + ')+' '+slotTxt, ...r });
+    }
+  }
 
-  /* ---- labels ---- */
-  const items=[];
-  if(bf) items.push('Breakfast');
-  if(lunch) items.push('Lunch');
-  if(dinner) items.push('Dinner');
-  if(snack) items.push('Snack');
-  if(juiceQty>0) items.push(juiceQty>1? juiceQty+' Juices':'1 Juice');
-  if(seafoodMeals>0) items.push('Seafood x'+seafoodMeals);
-  const slotTxt=[];
-  if(selSlots.morning) slotTxt.push('Morning');
-  if(selSlots.afternoon) slotTxt.push('Afternoon');
-  if(selSlots.evening) slotTxt.push('Evening');
+  /* ---- BREAKFAST block: morning, own trip (juice rides along if no main) ---- */
+  if(selMeals.breakfast){
+    let foodPerDay = P.bf;
+    let lbl=['Breakfast'];
+    if(!hasMain && juiceQty>0){ foodPerDay += juiceQty*P.juice; lbl.push(juiceQty>1? juiceQty+' Juices':'1 Juice'); }
+    const r=block(foodPerDay, 1);
+    blocks.push({ label: lbl.join(' + ')+' (Morning delivery)', ...r });
+  }
 
-  let out=planName+' Plan\n'+durLbl+'\n\n';
-  out+=items.join(' + ')+'\n';
-  if(slotTxt.length) out+='Slots: '+slotTxt.join(', ')+'\n';
-  out+='\nTotal: '+inr(total)+'/-\n';
-  if(durSel!=='trial') out+='2 day trial @ '+inr(trialTotal)+'/-\n';
-  out+='\nIncluding Delivery Charge & Taxes.';
+  /* ---- juice-only ---- */
+  if(!hasMain && !selMeals.breakfast && juiceQty>0){
+    const foodPerDay = juiceQty*P.juice;
+    const r=block(foodPerDay, 1);
+    blocks.push({ label:(juiceQty>1? juiceQty+' Juices':'1 Juice')+' (Morning delivery)', ...r });
+  }
+
+  let out = planName+' Plan\n'+durLabel()+'\n\n';
+  blocks.forEach(b=>{
+    out += b.label+'\n'+inr(b.totalMonth)+'/-\n'+trialDays+' day trial @ '+inr(b.trialTotal)+'/-\n\n';
+  });
+  out += 'Including Delivery Charge & Taxes.';
   $('preview').textContent=out;
 }
 
