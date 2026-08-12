@@ -489,33 +489,30 @@ async function removeConvertedClients(){
       return;
     }
     
-    // Normalize master client phone numbers
-    let masterMap = {};
+    // Normalize master client phone numbers into a set
+    let masterPhones = {};
     masterClients.forEach(c => {
       let ph = (c.phone || c[2] || "").toString().replace(/\D/g, "").slice(-10);
-      let nm = (c.name || c[1] || "").toString().trim().toLowerCase();
-      if(ph) masterMap[ph + "|" + nm] = c;
+      if(ph) masterPhones[ph] = c;
     });
     
     // Find matching leads and delete
     let removed = [];
     for(let lead of ALL){
       let leadPh = (lead.phone || "").toString().replace(/\D/g, "").slice(-10);
-      let leadNm = (lead.name || "").toString().trim().toLowerCase();
-      let key = leadPh + "|" + leadNm;
       
-      if(masterMap[key]){
+      if(masterPhones[leadPh]){
         try {
           const delResp = await fetch(API + "?action=deleteLead", {
             method: "POST",
-            body: JSON.stringify({ phone: lead.phone, name: lead.name })
+            body: JSON.stringify({ phone: lead.phone })
           });
           const delData = await delResp.json();
           if(delData.success && delData.rows && delData.rows.length){
             removed.push(...delData.rows);
           }
         } catch(e){
-          console.error("Delete failed for", lead.name, e);
+          console.error("Delete failed for", lead.phone, e);
         }
       }
     }
