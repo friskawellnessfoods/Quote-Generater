@@ -482,14 +482,15 @@ async function removeConvertedClients(){
   document.getElementById("loadingOverlay").classList.add("show");
   
   try {
-    // Fetch master clients from the other sheet's Apps Script
-    const masterResp = await fetch("https://script.google.com/macros/s/AKfycbxKsblVRWTB4ozLwsgl6NRFj8uq1TGzu0o1Czdk1xquOEn6ZU7gjGw0m-YeMDoFFRqi/exec?action=getMasterClientsAll");
+    // Fetch master clients via our own backend (proxies the other script)
+    const masterResp = await fetch(API + "?action=getMasterClients");
     const masterData = await masterResp.json();
     const masterClients = masterData.clients || [];
     
     if(!masterClients.length){
       document.getElementById("loadingOverlay").classList.remove("show");
-      showToast("No master clients found", "error");
+      console.log("Master client response:", masterData);
+      showToast(masterData.error ? ("Master list error: "+masterData.error) : "Master list returned 0 clients", "error");
       return;
     }
     
