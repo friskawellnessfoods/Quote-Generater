@@ -34,6 +34,8 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 .statCard{ background:white; border-radius:16px; padding:14px 14px; box-shadow:0 4px 14px rgba(20,33,62,0.06); text-align:center; border-left:3px solid var(--line); }
 .statCard.total{ border-left-color:var(--navy); }
 .statCard.booked{ border-left-color:var(--accent); }
+.statCard.warn{ border-left-color:#c97a0e; }
+.statCard.warn .statNum{ color:#c97a0e; }
 .statNum{ font-size:23px; font-weight:800; color:var(--navy); line-height:1; }
 .statCard.booked .statNum{ color:var(--accent); }
 .statLbl{ font-size:11.5px; color:var(--muted); margin-top:6px; font-weight:600; }
@@ -146,10 +148,10 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 <div class="wrap">
 
 <div class="stats">
-<div class="statCard total"><div class="statNum" id="statClients">–</div><div class="statLbl">Clients</div></div>
-<div class="statCard"><div class="statNum" id="statSubs">–</div><div class="statLbl">Submissions</div></div>
+<div class="statCard total"><div class="statNum" id="statClients">–</div><div class="statLbl">Open leads</div></div>
 <div class="statCard"><div class="statNum" id="statToday">–</div><div class="statLbl">Today</div></div>
-<div class="statCard booked"><div class="statNum" id="statBooked">–</div><div class="statLbl">Booked</div></div>
+<div class="statCard warn"><div class="statNum" id="statBooked">–</div><div class="statLbl">Booked, not registered</div></div>
+<div class="statCard booked"><div class="statNum" id="statConverted">–</div><div class="statLbl">Converted</div></div>
 </div>
 
 <div class="searchWrap">
@@ -160,9 +162,9 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 
 <div class="toolbar">
 <div class="segment" id="statusSeg">
-<button data-st="all" class="on" onclick="setStatus(this)">All</button>
-<button data-st="new" onclick="setStatus(this)">New</button>
+<button data-st="new" class="on" onclick="setStatus(this)">New</button>
 <button data-st="msgd" onclick="setStatus(this)">Messaged</button>
+<button data-st="all" onclick="setStatus(this)">All</button>
 <button data-st="booked" onclick="setStatus(this)">Booked</button>
 </div>
 <select class="sortSel" id="sortSel">
@@ -211,7 +213,7 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 <script>
 
 const API = (typeof API_URL !== "undefined" && API_URL) ? API_URL : "";
-let ALL = [], FLAGS = {}, STATUS = "all";
+let ALL = [], FLAGS = {}, STATUS = "new";
 
 function digKey(p){ var d=(""+(p||"")).replace(/\D/g,""); return d.length>10?d.slice(-10):d; }
 function waDigits(raw){ let d=(""+(raw||"")).replace(/\D/g,''); if(d.length===10) d="91"+d; return d; }
@@ -328,11 +330,10 @@ function groupLeads(rows){
 }
 
 function matchStatus(fl){
-  if(STATUS==="all") return true;
-  let booked=!!fl.booked, msgd=!!fl.contacted;
-  if(STATUS==="booked") return booked;
-  if(STATUS==="msgd")   return msgd && !booked;
-  if(STATUS==="new")    return !msgd && !booked;
+  if(STATUS==="all")    return true;
+  if(STATUS==="booked") return !!fl.booked;          // clicked Book Now, still in Sheet1 = never registered
+  if(STATUS==="msgd")   return !!fl.contacted;
+  if(STATUS==="new")    return !fl.contacted && !fl.booked;
   return true;
 }
 function setStatus(btn){
@@ -354,12 +355,15 @@ function render(){
 
   let allGroups = groupLeads(ALL);
   document.getElementById("statClients").innerText = allGroups.length;
-  document.getElementById("statSubs").innerText = ALL.length;
   let todaySet = {};
   ALL.forEach(l=>{ if(isToday(l.date)){ let k=(""+(l.phone||"")).replace(/\D/g,'')||("x"+(l.name||"")); todaySet[k]=1; } });
   document.getElementById("statToday").innerText = Object.keys(todaySet).length;
+  /* booked = clicked Book Now AND still sitting in Sheet1 -> never registered */
   let bookedCount = allGroups.filter(g=> (FLAGS[digKey(g.phone)]||{}).booked ).length;
   document.getElementById("statBooked").innerText = bookedCount;
+  /* converted = stamped at cleanup time from Master Client List; survives Sheet1 deletion */
+  let convertedCount = Object.keys(FLAGS).filter(k=> FLAGS[k].converted ).length;
+  document.getElementById("statConverted").innerText = convertedCount;
 
   let fromDay = fromVal ? ymdInt(fromVal) : null;
   let toDay   = toVal   ? ymdInt(toVal)   : null;
@@ -391,7 +395,7 @@ function render(){
   });
 
   if(!list.length){
-    let msg = q ? "No leads match your search." : (hasDate ? "No leads in this date range." : (STATUS!=="all" ? "No leads with this status." : "New leads will appear here."));
+    let msg = q ? "No leads match your search." : (hasDate ? "No leads in this date range." : (STATUS!=="all" ? "No "+STATUS+" leads." : "New leads will appear here."));
     document.getElementById("content").innerHTML = "<div class='state'><div class='big'>No leads found</div>"+msg+"</div>";
     return;
   }
@@ -403,7 +407,7 @@ function render(){
     let dig = waDigits(g.phone);
     NAME_BY_DIG[dig] = g.name || "";
     let key = digKey(g.phone), fl = FLAGS[key] || {};
-    let badges = (fl.booked ? "<span class='flag booked'>Booked</span>" : "") +
+    let badges = (fl.booked ? "<span class='flag booked'>Booked"+(fl.bookedAt?" · "+esc(fmtDay(fl.bookedAt)):"")+"</span>" : "") +
                  (fl.contacted ? "<span class='flag msgd'>Messaged</span>" : "");
     let subsHtml = g.subs.map(subCard).join("");
     let callHtml = dig ? "<a class='actIcon call' href='tel:+"+dig+"' onclick='stop(event)'>"+CALL_SVG+"</a>" : "";
@@ -479,7 +483,7 @@ async function removeConvertedClients(){
   
   try {
     // Fetch master clients from the other sheet's Apps Script
-    const masterResp = await fetch("https://script.google.com/macros/s/AKfycbxKsblVRWTB4ozLwsgl6NRFj8uq1TGzu0o1Czdk1xquOEn6ZU7gjGw0m-YeMDoFFRqi/exec?action=clients");
+    const masterResp = await fetch("https://script.google.com/macros/s/AKfycbxKsblVRWTB4ozLwsgl6NRFj8uq1TGzu0o1Czdk1xquOEn6ZU7gjGw0m-YeMDoFFRqi/exec?action=getMasterClientsAll");
     const masterData = await masterResp.json();
     const masterClients = masterData.clients || [];
     
@@ -492,18 +496,21 @@ async function removeConvertedClients(){
     // Normalize master client phone numbers into a set
     let masterPhones = {};
     masterClients.forEach(c => {
-      let ph = (c.phone || c[2] || "").toString().replace(/\D/g, "").slice(-10);
+      let ph = (c.phone || "").toString().replace(/\D/g, "").slice(-10);
       if(ph) masterPhones[ph] = c;
     });
     
     // Find matching leads and delete
     let removed = [];
+    let seen = {};
     for(let lead of ALL){
       let leadPh = (lead.phone || "").toString().replace(/\D/g, "").slice(-10);
+      if(!leadPh || seen[leadPh]) continue;
+      seen[leadPh] = 1;
       
       if(masterPhones[leadPh]){
         try {
-          const delResp = await fetch(API + "?action=deleteLead", {
+          const delResp = await fetch(API + "?action=markConverted", {
             method: "POST",
             body: JSON.stringify({ phone: lead.phone })
           });
