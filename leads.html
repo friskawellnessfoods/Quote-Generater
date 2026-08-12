@@ -117,6 +117,22 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 @keyframes slideUp{ from{ transform:translateY(20px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
 .toast.success{ border-left:3px solid var(--accent); }
 .toast.error{ border-left:3px solid #ef4444; }
+
+.modal{ display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:101; align-items:center; justify-content:center; }
+.modal.show{ display:flex; }
+.modalContent{ background:white; border-radius:18px; padding:28px; max-width:500px; max-height:80vh; overflow-y:auto; box-shadow:0 10px 40px rgba(20,33,62,0.2); }
+.modalHead{ font-size:18px; font-weight:700; color:var(--navy); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.modalList{ font-size:14px; line-height:1.8; color:var(--ink); }
+.modalList li{ margin-bottom:10px; padding-left:6px; }
+.modalList .ph{ color:var(--muted); font-size:12px; }
+.modalFoot{ display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+.modalFoot button{ padding:10px 16px; border-radius:12px; border:none; font-weight:600; cursor:pointer; }
+.modalFoot .btnClose{ background:#eef1f7; color:var(--ink); }
+.modalFoot .btnClose:hover{ background:var(--line); }
+
+.loadingOverlay{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(255,255,255,0.9); display:none; align-items:center; justify-content:center; flex-direction:column; z-index:100; gap:16px; }
+.loadingOverlay.show{ display:flex; }
+.loadingOverlay .spinner{ margin:0; }
 </style>
 </head>
 
@@ -167,6 +183,7 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 <button class="clearDates" id="clearDates" title="Clear dates" onclick="clearDates()">&times;</button>
 </div>
 <button class="refreshBtn" onclick="loadLeads()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Refresh</button>
+<button class="refreshBtn" style="background:#10b981;" onclick="removeConvertedClients()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16z"/></svg>Remove Converted</button>
 </div>
 
 <div id="content"></div>
@@ -174,6 +191,21 @@ h1,h2,h3,.leadName,.statNum,.btn,.brand{ font-family:"Poppins",system-ui,sans-se
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="loadingOverlay" id="loadingOverlay">
+<div class="spinner"></div>
+<div>Removing converted clients...</div>
+</div>
+
+<div class="modal" id="cleanupModal">
+<div class="modalContent">
+<div class="modalHead">✓ Converted Clients Removed</div>
+<div class="modalList" id="cleanupList"></div>
+<div class="modalFoot">
+<button class="btnClose" onclick="closeCleanupModal()">Done</button>
+</div>
+</div>
+</div>
 
 <script src="config.js"></script>
 <script>
@@ -437,6 +469,77 @@ function toggleCard(headEl){ headEl.parentNode.classList.toggle("open"); }
 document.getElementById("sortSel").addEventListener("change", render);
 document.getElementById("fromDate").addEventListener("change", render);
 document.getElementById("toDate").addEventListener("change", render);
+
+function closeCleanupModal(){ document.getElementById("cleanupModal").classList.remove("show"); loadLeads(); }
+
+async function removeConvertedClients(){
+  if(!API){ showToast("API_URL not configured", "error"); return; }
+  
+  document.getElementById("loadingOverlay").classList.add("show");
+  
+  try {
+    // Fetch master clients from the other sheet's Apps Script
+    const masterResp = await fetch("https://script.google.com/macros/s/AKfycbxKsblVRWTB4ozLwsgl6NRFj8uq1TGzu0o1Czdk1xquOEn6ZU7gjGw0m-YeMDoFFRqi/exec?action=clients");
+    const masterData = await masterResp.json();
+    const masterClients = masterData.clients || [];
+    
+    if(!masterClients.length){
+      document.getElementById("loadingOverlay").classList.remove("show");
+      showToast("No master clients found", "error");
+      return;
+    }
+    
+    // Normalize master client phone numbers
+    let masterMap = {};
+    masterClients.forEach(c => {
+      let ph = (c.phone || c[2] || "").toString().replace(/\D/g, "").slice(-10);
+      let nm = (c.name || c[1] || "").toString().trim().toLowerCase();
+      if(ph) masterMap[ph + "|" + nm] = c;
+    });
+    
+    // Find matching leads and delete
+    let removed = [];
+    for(let lead of ALL){
+      let leadPh = (lead.phone || "").toString().replace(/\D/g, "").slice(-10);
+      let leadNm = (lead.name || "").toString().trim().toLowerCase();
+      let key = leadPh + "|" + leadNm;
+      
+      if(masterMap[key]){
+        try {
+          const delResp = await fetch(API + "?action=deleteLead", {
+            method: "POST",
+            body: JSON.stringify({ phone: lead.phone, name: lead.name })
+          });
+          const delData = await delResp.json();
+          if(delData.success && delData.rows && delData.rows.length){
+            removed.push(...delData.rows);
+          }
+        } catch(e){
+          console.error("Delete failed for", lead.name, e);
+        }
+      }
+    }
+    
+    document.getElementById("loadingOverlay").classList.remove("show");
+    
+    if(removed.length){
+      let html = "<ul class='modalList'>";
+      removed.forEach(r => {
+        html += "<li><strong>"+esc(r.name)+"</strong><br><span class='ph'>📞 "+esc(r.phone)+"</span></li>";
+      });
+      html += "</ul>";
+      document.getElementById("cleanupList").innerHTML = html;
+      document.getElementById("cleanupModal").classList.add("show");
+      showToast("✓ Removed "+removed.length+" converted client"+(removed.length>1?"s":""), "success");
+    } else {
+      showToast("No converted clients to remove", "error");
+    }
+  } catch(e){
+    document.getElementById("loadingOverlay").classList.remove("show");
+    console.error("Cleanup failed:", e);
+    showToast("Cleanup failed: " + e.message, "error");
+  }
+}
 
 loadLeads();
 </script>
