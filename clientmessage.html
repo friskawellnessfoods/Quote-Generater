@@ -233,14 +233,14 @@ function generate(){
     if(bothMains){
       const f1 = P.single*1 + addonsPerDay(1);
       const r1 = block(f1, 1);
-      blocks.push({ label: lineLabel('Lunch','(Afternoon delivery)'), ...r1 });
+      blocks.push({ label: lineLabel('Lunch','(Afternoon delivery)'), ...r1, additive:false }); // alternative option
 
       let ae=aeSlots(); if(!ae.length) ae=['afternoon'];
       const trips=ae.length;
       const f2 = P.double*2 + addonsPerDay(seafoodWhen2);
       const slotTxt2 = trips===1 ? '('+cap(ae[0])+' delivery)' : '(Afternoon & Evening deliveries)';
       const r2 = block(f2, trips);
-      blocks.push({ label: lineLabel('Lunch + Dinner', slotTxt2), ...r2 });
+      blocks.push({ label: lineLabel('Lunch + Dinner', slotTxt2), ...r2, additive:true });
     } else {
       const meals=(selMeals.lunch?1:0)+(selMeals.dinner?1:0);
       let foodPerDay = P.single*meals + addonsPerDay(1);
@@ -252,7 +252,7 @@ function generate(){
       const baseStr = base.length? base.join(' + ') : (addonLbls.shift()||'Meal');
       const slotTxt = trips===1 ? '('+cap(ae[0])+' delivery)' : '(Afternoon & Evening deliveries)';
       const r=block(foodPerDay, trips);
-      blocks.push({ label: [baseStr, ...addonLbls].join(' + ')+' '+slotTxt, ...r });
+      blocks.push({ label: [baseStr, ...addonLbls].join(' + ')+' '+slotTxt, ...r, additive:true });
     }
   }
 
@@ -262,23 +262,21 @@ function generate(){
     let lbl=['Breakfast'];
     if(!hasMain && juiceQty>0){ foodPerDay += juiceQty*P.juice; lbl.push(juiceQty>1? juiceQty+' Juices':'1 Juice'); }
     const r=block(foodPerDay, 1);
-    blocks.push({ label: lbl.join(' + ')+' (Morning delivery)', ...r });
+    blocks.push({ label: lbl.join(' + ')+' (Morning delivery)', ...r, additive:true });
   }
 
   /* ---- juice-only ---- */
   if(!hasMain && !selMeals.breakfast && juiceQty>0){
     const foodPerDay = juiceQty*P.juice;
     const r=block(foodPerDay, 1);
-    blocks.push({ label:(juiceQty>1? juiceQty+' Juices':'1 Juice')+' (Morning delivery)', ...r });
+    blocks.push({ label:(juiceQty>1? juiceQty+' Juices':'1 Juice')+' (Morning delivery)', ...r, additive:true });
   }
 
   const head = planName+' Plan\n'+durLabel()+(people>1? '\n'+people+' people (shared delivery)' : '')+(discount>0? '\n'+discount+'% OFF' : '')+'\n\n';
-  let outHtml=head, outText=head, sumOrig=0, sumDiscTotal=0;
+  let outHtml=head, outText=head, sumOrig=0, sumDiscTotal=0, addCount=0;
   blocks.forEach(b=>{
-    sumOrig += b.totalMonth;
     const discFood = b.foodMonth*(1-discount/100);
     const discTotal = discFood + discFood*(b.gstPct/100) + b.deliveryMonth;  // GST on discounted food
-    sumDiscTotal += discTotal;
     let ph, pt;
     if(discount>0){
       ph='<s>'+inr(b.totalMonth)+'</s> '+inr(discTotal)+'/-';
@@ -288,9 +286,10 @@ function generate(){
     }
     outHtml += b.label+'\n'+ph+'\n'+trialDays+' day trial @ '+inr(b.trialTotal)+'/-\n\n';
     outText += b.label+'\n'+pt+'\n'+trialDays+' day trial @ '+inr(b.trialTotal)+'/-\n\n';
+    if(b.additive){ sumOrig += b.totalMonth; sumDiscTotal += discTotal; addCount++; }  // only meals taken together
   });
 
-  if(blocks.length>1){
+  if(addCount>1){
     const sumDisc = discount>0 ? sumDiscTotal : sumOrig;
     let th, tt;
     if(discount>0){ th='<s>'+inr(sumOrig)+'</s> '+inr(sumDisc)+'/-'; tt='~'+inr(sumOrig)+'~ '+inr(sumDisc)+'/-'; }
